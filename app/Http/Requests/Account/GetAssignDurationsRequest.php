@@ -25,7 +25,7 @@ class GetAssignDurationsRequest extends FormRequest
     {
         
         return [
-            'account_id' => 'required|exists:assign_durations,account_id'
+            'account_id' => 'required|integer|exists:assign_durations,account_id'
         ];
     }
 }

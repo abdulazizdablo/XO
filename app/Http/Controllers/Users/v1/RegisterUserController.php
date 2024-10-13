@@ -73,11 +73,29 @@ protected $vonageService;
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
 
-    public function register(RegisterUserRequest $request)
+    public function register(Request $request)
     {
         try {
-			$request->validated();
+		//	$request->validated();
             $phone = $request->phone;
+			
+			
+			$validator = Validator::make($request->all(), [
+        'first_name' => 'required|string|max:255',
+        'last_name' => 'required|string|max:255',
+        'phone' => ['required', 'regex:/^09\d{8}$/'],
+        'email' => 'nullable|email|string|max:30',
+        'password' => 'required|string|min:8|max:255',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 422);
+    }
+			
+			
+			
+			
+
 			
 			
 			// check if user has account and not verified his number
@@ -86,23 +104,83 @@ protected $vonageService;
 			$user_not_verified = User::where('phone',$phone)->where('isVerified',false)->first();
 			
 			if($user_not_verified){
+				$user_id = $user_not_verified->id;
+			$verify_code = (string) random_int(1000, 9999);
+            //$verify_code =1234;
+
+           UserVerification::where('user_id', $user_id)->delete();
+            UserVerification::create([
+                'user_id' => $user_id,
+                'verify_code' => $verify_code,
+				'expired_at' => now()->addMinutes(15)
+            ]);
 			
-			
-			return response()->success(['message' => 'You have not verified your phone number yet we will sent OTP'],200);
+            ob_start();
+            $ch = curl_init();
+            curl_setopt(
+                $ch,
+                CURLOPT_URL,
+                "https://bms.syriatel.sy/API/SendTemplateSMS.aspx?user_name=" .$this->syriatel_otp_username ."&password=" .$this->syriatel_otp_password ."&template_code=" .$this->syriatel_otp_templatecode . "&param_list=" .$verify_code ."&sender=XO&to=" .$phone
+				
+            );
+            curl_setopt($ch, CURLOPT_HEADER, 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+            if (curl_exec($ch) === false) {
+                echo 'Curl error: ' . curl_error($ch);
+            }
+            curl_close($ch);
+            ob_end_clean();
+          
+       
+            /*  In Dubai Project
+             $response = [
+                 'user' => $user,
+                 "request_id"=>$request_id,
+                 'message' => 'User created successfully'
+             ];
+*/
+
+			return response()->success(['message' => 'You have not verified your phone number yet we will sent OTP','user_id' => $user_not_verified->id],200);
 			
 			}
 			
 			
+			else {
+			
+			 $validator->sometimes('phone', 'unique:users,phone', function ($input) {
+        return $input->has('phone');
+    });
+
+    // Manually check if the new rule passes
+   // $validator->validate();
+
+    if ($validator->fails()) {
+        return response()->error(['message'=>'The phone has already been taken'],400);
+    }
+			
+			}
+			
+			$validated = $validator->validated();
+			
+			$email = $validated['email'];
+			if($email){
+				$existingUser = User::where('email', $email)->first();
+				if ($existingUser) {
+					return response()->error([
+							'message' => 'The email has already been taken.',
+						], 400);
+				}
+			}
 			
             /*Here We must implement the Send OTP function from Syriatel and MTN for verification process */
             /* In Dubai Project
              $request_id=$this->vonageService->startVerification($phone); */
             $user = User::create([
-                'first_name' => $request->validated('first_name'),
-                'last_name' => $request->validated('last_name'),
-                'phone' => $request->validated('phone'),
-              'email' => $request->validated('email'),
-				'password' => Hash::make($request->validated('password')),
+                'first_name' =>$validated['first_name'],
+                'last_name' => $validated['last_name'],
+                'phone' => $validated['phone'],
+              'email' => $validated['email']?? null,
+				'password' => Hash::make($validated['password']),
             ]);
 			 ///$user = User::create([
              //   'first_name' => $request->first_name,
@@ -174,7 +252,12 @@ $respones ,
         
         try {
             $phone = $request->validated('phone');
-            $user_id = $request->validated('user_id');
+			$user = User::where('phone', $phone)->first();
+			if(!$user){
+				return response()->error(['message'=>'User not found'],400);
+			}
+			$user_id = $user->id;
+            //$user_id = $request->validated('user_id');
             /*Here We must implement the Send OTP function from Syriatel and MTN for verification process */
             /* In Dubai Project
              $request_id=$this->vonageService->startVerification($phone); */
@@ -377,6 +460,17 @@ return response()->error(['message' => trans('register_user.otp_expired',[],$req
 
       return response()->error(['message' => trans('register_user.invailed_otp',[],$request->header('Content-Language') ?? 'en') ],400);
     }
+	
+	public function getUserByToken(){
+	
+	   $user=  auth('sanctum')->check();
+		
+		return ['user' => $user] ;
+	
+	
+	}
+	
+	
     public function verifyForPassword(VerifyUserRequest $request)
     {
 
@@ -465,11 +559,46 @@ return response()->error(['message' => trans('register_user.otp_expired',[],$req
         if ($user != null) {
 			$user_password = $user->password;
 			if (!Hash::check($password, $user_password)) {
-					                      return response()->error(['message' => trans('register_user.wrong_password',[],$request->header('Content-Language') ?? 'en') ],400);
+					                      return response()->error( trans('register_user.wrong_password',[],$request->header('Content-Language') ?? 'en') ,400);
 
 			}
            
+        $verify_code = 0;
+			
+           
             if ($user->isVerified == 0) {
+				
+				
+				
+				$verify_code = (string) random_int(1000, 9999);
+
+            UserVerification::create([
+                'user_id' => $user->id,
+                'verify_code' => $verify_code,
+				'expired_at' => now()->addMinutes(15)
+				//'expired_at' => now()->addSeconds(10)
+            ]);
+				
+				
+				  ob_start();
+            $ch = curl_init();
+            curl_setopt(
+                $ch,
+                CURLOPT_URL,
+                "https://bms.syriatel.sy/API/SendTemplateSMS.aspx?user_name=" .$this->syriatel_otp_username ."&password=" .$this->syriatel_otp_password ."&template_code=" .$this->syriatel_otp_templatecode . "&param_list=" .$verify_code ."&sender=XO&to=" .$phone
+				
+            );
+            curl_setopt($ch, CURLOPT_HEADER, 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+            if (curl_exec($ch) === false) {
+                echo 'Curl error: ' . curl_error($ch);
+            }
+            curl_close($ch);
+            ob_end_clean();
+				
+				
+				
+				
                 return response()->json(
 					[
 						'message' => 'Please verify your number',
@@ -575,8 +704,20 @@ return response()->error(['message' => trans('register_user.otp_expired',[],$req
 
     public function forgotPassword(ForgetPasswordRequest $request)
     {
+		
+			$user = User::where('phone', $request->phone)->first();
+			if (!$user){
+				return response()->error(['message'=>'User Not Found'],400);	
+			}
+			if($user->isVerified == 0){
+				return response()->error(['message'=>'This account exists but not verified yet'],400);	
+			}
+		
 		try{
-			$user = User::where('phone', $request->phone)->firstOrFail();
+		
+			
+			
+			
 
 			$verify_code = (string) random_int(1000, 9999);
 

@@ -71,6 +71,10 @@ class Order extends Model implements Auditable
     {
         return $this->belongsTo(Coupon::class, 'gift_id');
     }
+	
+	public function invoice(){
+		return $this->hasOne(Invoice::class);	
+	}
 
     public function coupon()
     {
@@ -149,6 +153,7 @@ class Order extends Model implements Auditable
 		//if($this->payment_method == 'cod'){
 		//        return $this->paid_by_user + $this->shipping_fee;
 		//}
+		return $this->total_price + $this->shipping_fee - $this->discounted_by_coupon;
         return $this->total_price + $this->shipping_fee;
 		// return $this->paid_by_user + $this->shipping_fee;
     }

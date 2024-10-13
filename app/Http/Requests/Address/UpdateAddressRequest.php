@@ -28,9 +28,9 @@ class UpdateAddressRequest extends FormRequest
             'address.id' => 'required',
             'address.city' => 'required_without:address.city_id|string|max:255',
             'address.city_id' => 'required_without:address.city|integer|exists:cities,id',  
-            'address.neighborhood' => 'sometimes|string|max:255',
+            'address.neighborhood' => 'nullable|string|max:255',
             'address.street' => 'sometimes|string|max:255',
-            'address.another_details' => 'sometimes|string|max:255',
+            'address.another_details' => 'nullable|string|max:255',
             'address.lat_long' => 'sometimes|regex:/^[+-]?\d+\.\d+,[+-]?\d+\.\d+$/',
             'address.phone_number_two' => 'sometimes|string|max:255',
 			'address.phone' => 'sometimes|string|max:255'

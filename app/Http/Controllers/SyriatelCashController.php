@@ -66,7 +66,7 @@ class SyriatelCashController extends Controller
 		} catch (\Exception $e) {
 
 
-			return $e->getMessage();
+			return response()->error(['message'=>$e->getMessage()],400);
 		}
 	}
 

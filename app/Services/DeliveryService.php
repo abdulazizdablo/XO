@@ -13,6 +13,7 @@ use App\Traits\FirebaseNotificationTrait;
 use App\Enums\Roles;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 
 class DeliveryService
@@ -55,7 +56,7 @@ class DeliveryService
                 $query->select(['id','first_name','last_name','phone']);
             }])->whereHas('shipment', function ($query) use ($today) {
 				$query->where('date',$today);	
-			})->where([['employee_id', $employee->id],['status','processing'],['shipping_date','!=',null]])->select(['id','user_id','address_id','employee_id','invoice_number','status','delivery_type','paid_by_user','covered_by_gift_card','total_price','shipping_fee','payment_method','delivery_date'])->get();
+			})->where([['employee_id', $employee->id],['status','processing'],['shipping_date','!=',null]])->select(['id','user_id','address_id','employee_id','invoice_number','status','delivery_type','paid_by_user','covered_by_gift_card','discounted_by_coupon','total_price','shipping_fee','payment_method','delivery_date'])->get();
 			foreach($orders as $order){
 				//$order->append(['priceWithFees','replaceOrderPriceDifferenceWithFees']);	
 				$order->append('priceWithFees');
@@ -72,7 +73,7 @@ class DeliveryService
                 $query->select(['id','first_name','last_name','phone']);
             }])->whereHas('shipment', function ($query) use ($today) {
 				$query->where('date',$today);	
-			})->where([['employee_id', $employee->id],['delivery_date','!=',null]])->whereIn('status',['in_delivery','processing'])->select(['id','user_id','address_id','employee_id','invoice_number','status','delivery_type','paid_by_user','covered_by_gift_card','total_price','shipping_fee','payment_method','delivery_date'])->get();
+			})->where([['employee_id', $employee->id],['delivery_date','!=',null]])->whereIn('status',['in_delivery','processing'])->select(['id','user_id','address_id','employee_id','invoice_number','status','delivery_type','paid_by_user','covered_by_gift_card','discounted_by_coupon','total_price','shipping_fee','payment_method','delivery_date'])->get();
 		  foreach($orders as $order){
 				//$order->append(['priceWithFees','replaceOrderPriceDifferenceWithFees']);	
 				$order->append('priceWithFees');
@@ -595,8 +596,14 @@ class DeliveryService
                     $notification = $delivery->notifications()->create([
 						'employee_id' => $delivery->id,
 						'type' => 'notification', // 1 is to redirect to the orders page
-						'title' => $title,
-						'body' => $body,
+						"title" =>[
+                    		"ar" => $title,
+							"en" => $title
+							],
+						"body" =>[
+							"ar" => $body,
+                    		"en" => $body
+							]
 					]);
 					return $notification;
                 } else{
@@ -614,45 +621,48 @@ class DeliveryService
         try {
             if ($employee->hasRole(Roles::WAREHOUSE_MANAGER)||$employee->hasRole(Roles::DELIVERY_ADMIN)){
                 $order = Order::findOrFail($order_id);
-				$shipment_date = $order->shipment->date;
+				$shipment_date = Carbon::parse($order->shipment->date)->format('Y-m-d');
+				$current_date = Carbon::now()->format('Y-m-d');
 				//return $shipment_date;
                 $delivery = Employee::where('id',$delivery_id)->firstOrFail();
+
                 if($delivery->hasRole(Roles::DELIVERY_BOY)){
                     $order->update([
                         'employee_id'=>$delivery->id,
                         'delivery_date'=>now(),
                     ]);
-					if($shipment_date == now()->format('Y-m-d ')){
-                    $fcm_tokens = $delivery->fcm_tokens()->pluck('fcm_token')->toArray(); 
+						if ($shipment_date === $current_date) {
+						$fcm_tokens = $delivery->fcm_tokens()->pluck('fcm_token')->toArray(); 
 
-					$title = ["en" => "New order assigned to you", "ar" => "تم اسناد طلب جديد"];
+						$title = ["en" => "New order assigned to you", "ar" => "تم اسناد طلب جديد"];
 
-					$body = ["en" => "New order assigned to you, please check your order list",
-							 "ar" => "تم اسناد طلب جديد، الرجاء مراجعة قائمة الطلبات المسندة"];
-                    foreach($fcm_tokens as $fcm){
-						$fcm_token = FcmToken::where([['fcm_token', $fcm],['employee_id',$delivery->id]])->first();
-						if($fcm_token->lang == 'en'){
-							$this->send_notification($fcm, 
-													 'New order assigned to you',
-													 'New order assigned to you, please check your order list',
-													 'new_order', 
-													 'delivery_app'); // key source	
-						}else{
-							$this->send_notification($fcm, 
-													 'تم اسناد طلب جديد',
-													 'تم اسناد طلب جديد، الرجاء مراجعة قائمة الطلبات المسندة',
-													 'new_order', 
-													 'delivery_app'); // key source
-						}	
+						$body = ["en" => "New order assigned to you, please check your order list",
+								 "ar" => "تم اسناد طلب جديد، الرجاء مراجعة قائمة الطلبات المسندة"];
+						foreach($fcm_tokens as $fcm){
+							$fcm_token = FcmToken::where([['fcm_token', $fcm],['employee_id',$delivery->id]])->first();
+							if($fcm_token->lang == 'en'){
+								$this->send_notification($fcm, 
+														 'New order assigned to you',
+														 'New order assigned to you, please check your order list',
+														 'new_order', 
+														 'delivery_app'); // key source	
+							}else{
+								$this->send_notification($fcm, 
+														 'تم اسناد طلب جديد',
+														 'تم اسناد طلب جديد، الرجاء مراجعة قائمة الطلبات المسندة',
+														 'new_order', 
+														 'delivery_app'); // key source
+							}	
+						}
+
+							//$this->send_notification($fcm,'تم اسناد طلب جديد','New order assigned to you','تم اسناد طلب جديد، الرجاء مراجعة قائمة الطلبات المسندة','New order assigned to you, please check your order list','new_order', 'delivery_app');
+						$delivery->notifications()->create([
+							'employee_id'=>$delivery->id,
+							'type'=> 'new_order', // 1 is to redirect to the orders page
+							'title'=>$title,
+							'body'=>$body
+						]);
 					}
-                        //$this->send_notification($fcm,'تم اسناد طلب جديد','New order assigned to you','تم اسناد طلب جديد، الرجاء مراجعة قائمة الطلبات المسندة','New order assigned to you, please check your order list','new_order', 'delivery_app');
-                    $delivery->notifications()->create([
-                        'employee_id'=>$delivery->id,
-                        'type'=> 'new_order', // 1 is to redirect to the orders page
-                        'title'=>$title,
-                        'body'=>$body
-                    ]);
-				}
                 } else{
                     throw new Exception('Please Choose a delivery boy');
                 }

@@ -5,65 +5,14 @@ namespace App\Traits;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Models\FcmToken;
-use Google\Auth\Credentials\ServiceAccountCredentials;
-use GuzzleHttp\Exception\RequestException;
 
 trait FirebaseNotificationTrait
 
 {
-    protected $client;
-    protected $credentialsPath;
-    protected $project_id;
-
-    public function __construct() {
-        $this->credentialsPath =  config('services.fcm_xo_delivery.credentialsPath');
-        $this->project_id =  config('services.fcm_xo_delivery.project_id');
-    }
  
    // function send_notification($user_fcm_token, $title_ar, $title_en, $body_ar, $body_en, $type, $server_key, $priority = null)
     function send_notification($user_fcm_token, $title, $body, $type, $server_key, $priority = null)
     {
-        $credentials = new ServiceAccountCredentials('https://www.googleapis.com/auth/firebase.messaging',$this->credentialsPath);
-        $authToken = $credentials->fetchAuthToken()['access_token'];
-        $url = "https://fcm.googleapis.com/v1/projects/{$this->project_id}/messages:send";
-        try{
-            $response = Http::withToken($authToken)->post($url,
-            [
-                'message'=>['token' => $user_fcm_token,
-                'data' => [
-                    'type' => $type,
-                    'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
-                ],
-                'notification' => [
-                    'title' => $title ,
-                    'body' => $body 
-                ],
-                'android' => [
-                    'priority' => 'high'
-                ],
-                'apns' => [
-                    'headers' => [
-                        'apns-priority' => '10'
-                    ],
-                    'payload' => [
-                        'aps' => [
-                            'content-available' => 1,
-                            'badge' => 5,
-                            'priority' => 'high'
-                        ]
-                    ]
-                ]
-            ]]);
-			Log::debug('res');
-			Log::debug('-----');
-			Log::debug($response);
-			Log::debug('-----');
-
-            return $response->getBody()->getContents();
-        }catch(RequestException $e){
-            return $e->getMessage();
-        }
-
         $reqData['to'] = $user_fcm_token;
        /* $reqData['data']['title_ar'] = $title_ar;
         $reqData['data']['title_en'] = $title_en;

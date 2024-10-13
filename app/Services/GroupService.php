@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Discount;
 use App\Models\Offer;
 use App\Traits\CloudinaryTrait;
+use App\Traits\PhotoTrait;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Str;
@@ -28,7 +29,7 @@ use App\Traits\FirebaseNotificationTrait;
 
 class GroupService
 {
-    use CloudinaryTrait, TranslateFields,FirebaseNotificationTrait;
+    use PhotoTrait, TranslateFields,FirebaseNotificationTrait;
 
     protected function filterByTotal($query, $filter_data)
     {
@@ -673,7 +674,7 @@ else{
     {
         try {
             // $group_data = $data;
-            $photo_path =  $this->saveImage($data['image'], 'offers');
+            $photo_path =  $this->saveImage($data['image'], 'photo', 'offers');
             $group = Group::create([
                 'name' => [
                     'en' => $data['group_name_en'],
@@ -720,7 +721,7 @@ else{
     {
         try {
             // $group_data = $data;
-            $photo_path =  $this->saveImage($data['image'], 'discounts');
+            $photo_path =  $this->saveImage($data['image'], 'photo', 'discounts');
             $group = Group::create([
                 'name' => [
                     'en' => $data['group_name_en'],

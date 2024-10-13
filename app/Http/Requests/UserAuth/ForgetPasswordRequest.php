@@ -23,14 +23,18 @@ class ForgetPasswordRequest extends FormRequest
     {
         return [
             //'email' => 'required|email',
-            'phone' => 'required|max:255|string|exists:users,phone',
+            'phone' => 'required|regex:/^09\\d{8}$/|exists:users,phone',
         ];
     }
 	
-	// protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
-    //{
-    //    $response = new JsonResponse(
-    //        $validator->errors(), 422);
-    //    throw new \Illuminate\Validation\ValidationException($validator, $response);
-    //}
+	    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
+    {
+        throw new \Illuminate\Validation\ValidationException($validator, response()->json([
+            'success' => false,
+            'error' => [
+                'message' => $validator->errors()->first(),
+            ],
+        ], 422));
+    }
+
 }

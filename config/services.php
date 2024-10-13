@@ -30,5 +30,11 @@ return [
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
+	
+	'fcm_xo_delivery' => [
+        'credentialsPath' => storage_path('app/xo-delivery-firebase-adminsdk.json') ,
+        'project_id' => env('XO_DELIVERY_PROJECT_ID'),
+
+    ]
 
 ];

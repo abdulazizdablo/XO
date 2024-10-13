@@ -21,6 +21,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Validation\Rule;
 use App\Models\City;
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
@@ -97,6 +98,7 @@ class OrderController extends Controller
 
     public function store(Request $request)
     {
+		Log::debug('order request: '. $request);
 
         $user = auth('sanctum')->user();
         if (!$user) {
@@ -283,6 +285,14 @@ else {
 				$order->update(['shipping_fee'=>0]);	
 			}
 			
+			if($order->gift_id != null){
+				$balance = Coupon::find($order->gift_id)->amount_off;
+			}
+			
+			if($order->coupon_id != null){
+				$percentage = Coupon::find($order->coupon_id)->percentage;
+			}
+			
 			$invoice = Invoice::create([
                 'order_id'=>$order->id,
                 'user_id'=>$user_id,
@@ -291,9 +301,12 @@ else {
                 'fees'=>$order->shipping_fee,
                 'total_payment'=>$order->paid_by_user + $order->shipping_fee ,
                 'invoice_number'=>$order->invoice_number,
+				'gift_card_balance' => $balance ? ($balance + $order->covered_by_gift_card) : null,
+				'coupon_percenage' => $percentage? $percentage : null,
                 'type' => 'new',
                 //'order_items' => json_encode($order->order_items)
             ]);
+			
 			$price_before_offers_and_discounts = 0;
             $order_items = $order->order_items()->get();
             foreach($order_items as $order_item){

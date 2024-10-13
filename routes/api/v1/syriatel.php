@@ -8,6 +8,7 @@ Route::group(
     [
         'prefix' => '/v1/syriatel-cash',
         'as' => 'v1.syriatel-cash.',
+		//	'middleware' => ['auth:sanctum']
     ],
     function () {
         Route::post('get-token', [SyriatelCashController::class, 'getToken'])->name('index');

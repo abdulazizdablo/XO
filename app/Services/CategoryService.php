@@ -6,7 +6,8 @@ use App\Models\Category;
 use App\Models\SubCategory;
 use Illuminate\Support\Arr;
 use InvalidArgumentException;
-use App\Traits\CloudinaryTrait;
+//use App\Traits\CloudinaryTrait;
+use App\Traits\PhotoTrait;
 use App\Traits\TranslateFields;
 use Exception;
 use Illuminate\Support\Facades\File;
@@ -17,7 +18,7 @@ use App\Models\Inventory;
 
 class CategoryService
 {
-    use CloudinaryTrait, TranslateFields;
+    use PhotoTrait, TranslateFields;
 
     public function getAllCategories()
     {

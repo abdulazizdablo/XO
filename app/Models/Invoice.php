@@ -21,7 +21,9 @@ class Invoice extends Model implements Auditable
         'total_payment',	
         'invoice_number',
         'type',	
-        'order_items' 
+        'order_items' ,
+		'gift_card_balance',
+		'coupon_percenage'
     ];
 
     protected $casts = [

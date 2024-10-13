@@ -34,9 +34,9 @@ class StoreAddressRequest extends FormRequest
             'address.city_id' => 'required_without:address.city|integer|exists:cities,id',   
 			'address.branch_id' => ['sometimes','integer','nullable', new IsKadmousRule,'exists:branches,id'],
 			'address.isKadmous' => 'required|boolean',
-            'address.neighborhood' => 'sometimes|string|max:255',
+            'address.neighborhood' => 'nullable|string|max:255',
             'address.street' => 'sometimes|string|max:255',
-            'address.another_details' => 'sometimes|string|max:255',
+            'address.another_details' => 'nullable|string|max:255',
             'address.lat_long' => 'sometimes|regex:/^[+-]?\d+\.\d+,[+-]?\d+\.\d+$/',
             'address.phone_number_two' => 'sometimes|string|max:255'
         ];

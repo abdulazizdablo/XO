@@ -8,7 +8,8 @@ use Illuminate\Support\Facades\Route;
 Route::group(
     [
         'prefix' => 'v1/mtn-cash',
-        'as' => 'mtn.cash.'
+        'as' => 'mtn.cash.',
+		//'middleware' => ['auth.sanctum']
     ],
     function () {
         //Route::post('authenticate-merchant', [MTNPaymentController::class, 'authenticateMerchant'])->name('index');

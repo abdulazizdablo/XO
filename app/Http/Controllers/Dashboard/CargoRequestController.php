@@ -502,7 +502,7 @@ class CargoRequestController extends Controller
 
         if ($warehouse_manager->hasRole(Roles::WAREHOUSE_MANAGER)) {
 
-            $shipments = CargoShipment::with('inventory', 'cargo_request.inventory', 'cargo_request.cargo_requests_pv')->latest()
+            $shipments = CargoShipment::with('inventory', 'cargo_request.inventory', 'cargo_request.cargo_requests_pv','cargo_shipment_pv')->latest()
                 ->where('from_inventory', $warehouse_manager->inventory_id)
                 ->latest();
 
@@ -518,7 +518,7 @@ class CargoRequestController extends Controller
             $shipments = $shipments->get();
             $shipments->each(function ($item) {
                 $expected = $item->cargo_shipment_pv->sum('quantity');
-                $received = $item->cargo_shipment_pv->sum('recieved');;
+                $received = $item->cargo_shipment_pv->sum('received');;
 
                 $item->expected = $expected;
                 $item->received = $received;

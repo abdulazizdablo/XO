@@ -90,7 +90,7 @@ class CouponController extends Controller
             $validate = Validator::make(
     $request->only('name', 'code', 'max_redemption', 'percentage', 'expired_at'),
     [
-        'name' => 'required|string|max:255',
+         'name' => 'required|string|max:255',
         'code' => 'required|string|max:255|unique:coupons,code',
         'max_redemption' => 'required|numeric',
         'percentage' => 'required|numeric|lt:45',

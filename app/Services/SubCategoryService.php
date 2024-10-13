@@ -6,7 +6,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\SubCategory;
 use Illuminate\Database\Eloquent\Collection;
-use App\Traits\CloudinaryTrait;
+use App\Traits\PhotoTrait;
 use InvalidArgumentException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
@@ -16,7 +16,7 @@ use App\Traits\TranslateFields;
 
 class SubCategoryService
 {
-    use CloudinaryTrait, TranslateFields;
+    use PhotoTrait, TranslateFields;
 
     public function getAllSubCategories($category_id=null)
     {

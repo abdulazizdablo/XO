@@ -25,7 +25,7 @@ class RolesFilterRequest extends FormRequest
     {
         
         return [
-            'roles_filter' => 'bail|sometimes|exists:roles,name'
+            'roles_filter' => 'bail|sometimes|string|exists:roles,name'
         ];
     }
 }

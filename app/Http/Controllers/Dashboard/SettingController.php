@@ -11,15 +11,16 @@ use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Response;
 use App\Http\Requests\Setting\CreateSettingRequest;
 use App\Http\Requests\Setting\PhotosSettingRequest;
-use App\Traits\CloudinaryTrait;
+//use App\Traits\CloudinaryTrait;
+use App\Traits\PhotoTrait;
 use Illuminate\Support\Facades\Cache;
 use App\Models\Poligon;
 use App\Enums\Roles;
 
 class SettingController extends Controller
 {
-  use CloudinaryTrait;
-
+  //use CloudinaryTrait;
+  use PhotoTrait;	
   public function __construct(
     protected SettingService $settingService
   ) {
@@ -232,7 +233,7 @@ public function aboutUs(Request $request)
         $setting = Setting::where('key', 'aboutUs')->first();
         if ($setting) {
             if ($request->hasFile('aboutUs')) {
-                $image = $this->saveImage($request->file('aboutUs'), 'aboutUs');
+                $image = $this->saveImage($request->file('aboutUs'),rand(000000,999999), 'aboutUs');
                 if ($image) {
 					
 				
@@ -997,7 +998,7 @@ public function aboutUs(Request $request)
         if ($request->hasFile('banner')) {
 
 
-          $banner = $this->saveImage($request->file('banner'), 'banner');
+          $banner = $this->saveImage($request->file('banner'),'banners', 'banner');
           $coupon_details_value = json_decode($request->couponDetails, true);
 
 
@@ -1044,7 +1045,7 @@ public function aboutUs(Request $request)
         }
       } else {
 
-        $banner = $this->saveImage($request->file('banner'), 'banner');
+        $banner = $this->saveImage($request->file('banner'),'banners', 'banner');
         $setting = new Setting();
 
         $setting->key = $request->key;

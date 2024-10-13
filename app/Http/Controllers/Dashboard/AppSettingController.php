@@ -8,7 +8,8 @@ use App\Models\AppSetting;
 use App\Models\Section;
 use App\Services\SettingService;
 use App\Http\Requests\Setting\CreateSettingRequest;
-use App\Traits\CloudinaryTrait;
+// use App\Traits\CloudinaryTrait;
+use App\Traits\PhotoTrait;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 use App\Enums\Sections;
@@ -18,7 +19,7 @@ use App\Enums\SectionHelper;
 
 class AppSettingController extends Controller
 {
-    use CloudinaryTrait;
+    use PhotoTrait;
 
     public function __construct(protected SettingService $settingService)
     {
@@ -364,7 +365,7 @@ class AppSettingController extends Controller
             $sections = ['Kids', 'Men', 'Home', 'Women'];
             foreach ($sections as $section) {
                 if ($request->hasFile($section)) {
-                    $imagePath = $this->saveImage($request->file($section), $section);
+                    $imagePath = $this->saveImage($request->file($section),'photo', $section);
                     if ($imagePath) {
                         // If the image is successfully saved, add it to the new values array
                         $newValues[$section] = $imagePath;
@@ -399,23 +400,23 @@ class AppSettingController extends Controller
     public function locationPhotos(CreateSettingRequest $request)
     {
         if ($request->key == 'locationPhotos') {
-            $appSetting = AppSetting::where('key', 'locationPhotos')->firstOrFail();
+            $appSetting = AppSetting::where('key', 'locationPhotos')->first();
 
             if ($appSetting) {
 				$decoded_value = json_decode($appSetting->value,true);
 				
 				if($request->hasFile('image1')){
-				$image1 = $this->saveImage($request->file('image1'),'image1');
+				$image1 = $this->saveImage($request->file('image1'),'image1','locationPhotos');
 					$decoded_value['image1'] = $image1;
 				
 				}
 						if($request->hasFile('image2')){
-				$image1 = $this->saveImage($request->file('image2'),'image2');
+				$image1 = $this->saveImage($request->file('image2'),'image2','locationPhotos');
 						$decoded_value['image2'] = $image1;
 				
 				}
 						if($request->hasFile('image3')){
-				$image1 = $this->saveImage($request->file('image3'),'image3');
+				$image1 = $this->saveImage($request->file('image3'),'image3','locationPhotos');
 					$decoded_value['image3'] = $image1;
 				
 				}
@@ -436,19 +437,19 @@ class AppSettingController extends Controller
                 return response()->success($appSetting,  200);
             } else {
 				$appSetting = new AppSetting();
-					
+					$decoded_value =$request->value;
 				if($request->hasFile('image1')){
-				$image1 = $this->saveImage($request->file('image1'),'image1');
+				$image1 = $this->saveImage($request->file('image1'),'image1','locationPhotos');
 					$decoded_value['image1'] = $image1;
 				
 				}
 						if($request->hasFile('image2')){
-				$image1 = $this->saveImage($request->file('image2'),'image2');
+				$image1 = $this->saveImage($request->file('image2'),'image2','locationPhotos');
 						$decoded_value['image2'] = $image2;
 				
 				}
 						if($request->hasFile('image3')){
-				$image1 = $this->saveImage($request->file('image3'),'image3');
+				$image1 = $this->saveImage($request->file('image3'),'image3','locationPhotos');
 					$decoded_value['image2'] = $image2;
 				
 				}
@@ -473,7 +474,9 @@ class AppSettingController extends Controller
 public function giftCardDetails(Request $request){
     if($request->key == 'GiftCardDetails'){
         $appSetting = AppSetting::where('key', 'GiftCardDetails')->first();
-			$decoded_value = json_decode($request->value,true);
+	$decoded_value = 	json_decode($request->value,true);
+		
+		//	$decoded_value = json_decode($request->value,true);
 
 $value	= 	json_decode($appSetting?->value,true)  ;
 		    if($appSetting){
@@ -494,17 +497,17 @@ $value['balance']['price4'] = $decoded_value['balance']['price4'];
             // Assuming you want to update the value with the new data from the request
 			
 				if($request->hasFile('banner1')){
-				$image1 = $this->saveImage($request->file('banner1'),'banner1');
+				$image1 = $this->saveImage($request->file('banner1'),'banner1','banners');
 					$decoded_value['banner1'] = $image1;
 				
 				}
 						if($request->hasFile('banner2')){
-				$image1 = $this->saveImage($request->file('banner2'),'banner2');
+				$image1 = $this->saveImage($request->file('banner2'),'banner2','banners');
 						$decoded_value['banner2'] = $image1;
 				
 				}
 						if($request->hasFile('banner3')){
-				$image1 = $this->saveImage($request->file('banner3'),'banner3');
+				$image1 = $this->saveImage($request->file('banner3'),'banner3','banners');
 					$decoded_value['banner3'] = $image1;
 				
 				}
@@ -532,17 +535,17 @@ $value['balance']['price4'] = $decoded_value['balance']['price4'];
             // However, your current logic tries to update a non-existent record, which won't work.
             // Instead, create a new record with the provided data.
 				if($request->hasFile('banner1')){
-				$image1 = $this->saveImage($request->file('banner1'),'banner1');
+				$image1 = $this->saveImage($request->file('banner1'),'banner1','banners');
 					$decoded_value['banner1'] = $image1;
 				
 				}
 						if($request->hasFile('banner2')){
-				$image1 = $this->saveImage($request->file('banner2'),'banner2');
+				$image1 = $this->saveImage($request->file('banner2'),'banner2','banners');
 						$decoded_value['banner2'] = $image1;
 				
 				}
 						if($request->hasFile('banner3')){
-				$image1 = $this->saveImage($request->file('banner3'),'banner3');
+				$image1 = $this->saveImage($request->file('banner3'),'banner3','banners');
 					$decoded_value['banner3'] = $image1;
 				
 				}
@@ -572,23 +575,23 @@ $value['balance']['price4'] = $decoded_value['balance']['price4'];
 				$decoded_value = json_decode($appSetting->value,true);
 				
 				if($request->hasFile('women')){
-				$image1 = $this->saveImage($request->file('women'),'women');
+				$image1 = $this->saveImage($request->file('women'),'women','offers');
 					$decoded_value['women'] = $image1;
 				
 				}
 						if($request->hasFile('men')){
-				$image1 = $this->saveImage($request->file('men'),'men');
+				$image1 = $this->saveImage($request->file('men'),'men','offers');
 						$decoded_value['men'] = $image1;
 				
 				}
 						if($request->hasFile('kids')){
-				$image1 = $this->saveImage($request->file('kids'),'kids');
+				$image1 = $this->saveImage($request->file('kids'),'kids','offers');
 					$decoded_value['kids'] = $image1;
 				
 				}
 				
 						if($request->hasFile('home')){
-				$image1 = $this->saveImage($request->file('home'),'home');
+				$image1 = $this->saveImage($request->file('home'),'home','offers');
 					$decoded_value['home'] = $image1;
 				
 				}
@@ -611,23 +614,23 @@ $value['balance']['price4'] = $decoded_value['balance']['price4'];
 				$appSetting->key = 'offers';
 					
 				if($request->hasFile('women')){
-				$image1 = $this->saveImage($request->file('women'),'women');
+				$image1 = $this->saveImage($request->file('women'),'women','offers');
 					$decoded_value['women'] = $image1;
 				
 				}
 						if($request->hasFile('men')){
-				$image1 = $this->saveImage($request->file('men'),'men');
+				$image1 = $this->saveImage($request->file('men'),'men','offers');
 						$decoded_value['men'] = $image1;
 				
 				}
 						if($request->hasFile('kids')){
-				$image1 = $this->saveImage($request->file('kids'),'kids');
+				$image1 = $this->saveImage($request->file('kids'),'kids','offers');
 					$decoded_value['kids'] = $image1;
 				
 				}
 				
 							if($request->hasFile('home')){
-				$image1 = $this->saveImage($request->file('home'),'home');
+				$image1 = $this->saveImage($request->file('home'),'home','offers');
 					$decoded_value['home'] = $image1;
 				
 				}
@@ -653,23 +656,23 @@ $value['balance']['price4'] = $decoded_value['balance']['price4'];
 				$decoded_value = json_decode($appSetting->value,true);
 				
 				if($request->hasFile('women')){
-				$image1 = $this->saveImage($request->file('women'),'women');
+				$image1 = $this->saveImage($request->file('women'),'women','newIn');
 					$decoded_value['women'] = $image1;
 				
 				}
 						if($request->hasFile('men')){
-				$image1 = $this->saveImage($request->file('men'),'men');
+				$image1 = $this->saveImage($request->file('men'),'men','newIn');
 						$decoded_value['men'] = $image1;
 				
 				}
 						if($request->hasFile('kids')){
-				$image1 = $this->saveImage($request->file('kids'),'kids');
+				$image1 = $this->saveImage($request->file('kids'),'kids','newIn');
 					$decoded_value['kids'] = $image1;
 				
 				}
 				
 						if($request->hasFile('home')){
-				$image1 = $this->saveImage($request->file('home'),'home');
+				$image1 = $this->saveImage($request->file('home'),'home','newIn');
 					$decoded_value['home'] = $image1;
 				
 				}
@@ -692,23 +695,23 @@ $value['balance']['price4'] = $decoded_value['balance']['price4'];
 				$appSetting->key = 'newIn';
 					
 				if($request->hasFile('women')){
-				$image1 = $this->saveImage($request->file('women'),'women');
+				$image1 = $this->saveImage($request->file('women'),'women','newIn');
 					$decoded_value['women'] = $image1;
 				
 				}
 						if($request->hasFile('men')){
-				$image1 = $this->saveImage($request->file('men'),'men');
+				$image1 = $this->saveImage($request->file('men'),'men','newIn');
 						$decoded_value['men'] = $image1;
 				
 				}
 						if($request->hasFile('kids')){
-				$image1 = $this->saveImage($request->file('kids'),'kids');
+				$image1 = $this->saveImage($request->file('kids'),'kids','newIn');
 					$decoded_value['kids'] = $image1;
 				
 				}
 				
 							if($request->hasFile('home')){
-				$image1 = $this->saveImage($request->file('home'),'home');
+				$image1 = $this->saveImage($request->file('home'),'home','newIn');
 					$decoded_value['home'] = $image1;
 				
 				}
@@ -734,23 +737,23 @@ $value['balance']['price4'] = $decoded_value['balance']['price4'];
 				$decoded_value = json_decode($appSetting->value,true);
 				
 				if($request->hasFile('women')){
-				$image1 = $this->saveImage($request->file('women'),'women');
+				$image1 = $this->saveImage($request->file('women'),'women','flash');
 					$decoded_value['women'] = $image1;
 				
 				}
 						if($request->hasFile('men')){
-				$image1 = $this->saveImage($request->file('men'),'men');
+				$image1 = $this->saveImage($request->file('men'),'men','flash');
 						$decoded_value['men'] = $image1;
 				
 				}
 						if($request->hasFile('kids')){
-				$image1 = $this->saveImage($request->file('kids'),'kids');
+				$image1 = $this->saveImage($request->file('kids'),'kids','flash');
 					$decoded_value['kids'] = $image1;
 				
 				}
 				
 						if($request->hasFile('home')){
-				$image1 = $this->saveImage($request->file('home'),'home');
+				$image1 = $this->saveImage($request->file('home'),'home','flash');
 					$decoded_value['home'] = $image1;
 				
 				}
@@ -773,23 +776,23 @@ $value['balance']['price4'] = $decoded_value['balance']['price4'];
 				$appSetting->key = 'flashSale';
 					
 				if($request->hasFile('women')){
-				$image1 = $this->saveImage($request->file('women'),'women');
+				$image1 = $this->saveImage($request->file('women'),'women','flash');
 					$decoded_value['women'] = $image1;
 				
 				}
 						if($request->hasFile('men')){
-				$image1 = $this->saveImage($request->file('men'),'men');
+				$image1 = $this->saveImage($request->file('men'),'men','flash');
 						$decoded_value['men'] = $image1;
 				
 				}
 						if($request->hasFile('kids')){
-				$image1 = $this->saveImage($request->file('kids'),'kids');
+				$image1 = $this->saveImage($request->file('kids'),'kids','flash');
 					$decoded_value['kids'] = $image1;
 				
 				}
 				
 							if($request->hasFile('home')){
-				$image1 = $this->saveImage($request->file('home'),'home');
+				$image1 = $this->saveImage($request->file('home'),'home','flash');
 					$decoded_value['home'] = $image1;
 				
 				}
@@ -904,7 +907,7 @@ $value['balance']['price4'] = $decoded_value['balance']['price4'];
             $sections = ['kids', 'men', 'home', 'women'];
             foreach ($sections as $section) {
                 if ($request->hasFile($section)) {
-                    $imagePath = $this->saveImage($request->file($section), $section);
+                    $imagePath = $this->saveImage($request->file($section),'photo', $section);
                     if ($imagePath) {
                         // If the image is successfully saved, add it to the new values array
                         $newValues[$section] = $imagePath;
@@ -1179,10 +1182,10 @@ else {
                 $currentSettings = json_decode($setting->value, true);
 
                 // Check if the images are present in the request and save them if they are
-                $menImage = isset($request->value['men']) ? $this->saveImage($request->value['men'], 'settings') : $currentSettings['men'] ?? '';
-                $womenImage = isset($request->value['women']) ? $this->saveImage($request->value['women'], 'settings') : $currentSettings['women'] ?? '';
-                $kidsImage = isset($request->value['kids']) ? $this->saveImage($request->value['kids'], 'settings') : $currentSettings['kids'] ?? '';
-                $homeImage = isset($request->value['home']) ? $this->saveImage($request->value['home'], 'settings') : $currentSettings['home'] ?? '';
+                $menImage = isset($request->value['men']) ? $this->saveImage($request->value['men'], 'photo' ,'settings') : $currentSettings['men'] ?? '';
+                $womenImage = isset($request->value['women']) ? $this->saveImage($request->value['women'], 'photo' , 'settings') : $currentSettings['women'] ?? '';
+                $kidsImage = isset($request->value['kids']) ? $this->saveImage($request->value['kids'], 'photo' , 'settings') : $currentSettings['kids'] ?? '';
+                $homeImage = isset($request->value['home']) ? $this->saveImage($request->value['home'], 'photo' , 'settings') : $currentSettings['home'] ?? '';
 
                 // Update the settings with the new or existing images
                 $setting->update([

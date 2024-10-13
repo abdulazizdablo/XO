@@ -82,6 +82,7 @@ class ProductVariationResource extends JsonResource
 		
 		});
 */
+		
         $has_stock_levels = collect($this->stock_levels);
         if ($has_stock_levels) {
             $quantity = $this->stock_levels->sum('current_stock_level');
@@ -104,7 +105,7 @@ class ProductVariationResource extends JsonResource
         return [
             'product_variation_id' => $this->id,
             'color_id' => $this->color_id,
-            'quantity' =>StockLevel::where('product_variation_id', $this->id)->max('current_stock_level'),
+            'quantity' =>StockLevel::where('product_variation_id', $this->id)->max('current_stock_level') ?? 0,
             'max_quantity_per_order' => 10,
             'status' => $status,
             'sku_code' => $this->sku_code,

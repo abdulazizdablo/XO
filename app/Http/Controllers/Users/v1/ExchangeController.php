@@ -39,7 +39,6 @@ class ExchangeController extends Controller
     {
         try {
             // $product = $this->refundService->checkExchangeProducts($order_items);
-
         DB::beginTransaction();
 		$user = auth('sanctum')->user();
 			
@@ -88,7 +87,7 @@ class ExchangeController extends Controller
 		if ($order->paid == 0 || $order->status != 'received' ) {
          //   throw new Exception('Order can not replaced');
 			
-			return response()->error(['message' => trans('order.order_replaced_error',[],$request->header('Content-Language')) ,409])
+			return response()->error(['message' => trans('order.order_replaced_error',[],$request->header('Content-Language')) ],409);
         }
 		
 		$payment_method = $request->validated('payment_method');
@@ -418,7 +417,7 @@ class ExchangeController extends Controller
 
             if ($order_item->group_id != null) { // To Do: add condition that underware and towels can't be returned
               //  throw new Exception('Offer products can not be replaced');
-			return response()->error(['message' => trans('exchange.offer_products_not_replaced',[],$request->header('Content-Language')) ,409])
+			return response()->error(['message' => trans('exchange.offer_products_not_replaced',[],$request->header('Content-Language')) ],409);
 
             }
 

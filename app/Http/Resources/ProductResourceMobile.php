@@ -134,7 +134,8 @@ class ProductResourceMobile extends JsonResource
                     "id" => $item3->id,
                     "product_id" => $item3->product_id,
                     "color_id" => $item3->color_id,
- 'path' =>  ($this->width && $this->height)? $this->getImageUrl(($this->getPublicIdFromUrl($item3->path)), $this->width + 430, $this->height + 935) : $item3->path,
+					"path" => $item3->path,
+ //'path' =>  ($this->width && $this->height)? $this->getImageUrl(($this->getPublicIdFromUrl($item3->path)), $this->width + 430, $this->height + 935) : $item3->path,
 
                     "main_photo" => $item3->main_photo,
                 ];

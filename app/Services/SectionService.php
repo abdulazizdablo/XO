@@ -11,14 +11,15 @@ use App\Models\SubCategory;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
 use InvalidArgumentException;
-use App\Traits\CloudinaryTrait;
+//use App\Traits\CloudinaryTrait;
+use App\Traits\PhotoTrait;
 use App\Traits\TranslateFields;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
 class SectionService
 {
-    use CloudinaryTrait, TranslateFields;
+    use PhotoTrait, TranslateFields;
 
     public function getAllSections()
     {

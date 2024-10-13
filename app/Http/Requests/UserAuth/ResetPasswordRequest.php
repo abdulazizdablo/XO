@@ -28,9 +28,10 @@ class ResetPasswordRequest extends FormRequest
             'password' => 'required|confirmed|min:8'
         ];
     }
-
+/*
     protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
     {
 		return response()->json($validator->errors(), 422);
     }
+	*/
 }

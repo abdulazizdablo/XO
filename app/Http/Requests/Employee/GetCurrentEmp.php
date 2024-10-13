@@ -24,7 +24,7 @@ class GetCurrentEmp extends FormRequest
     public function rules()
     {
         return [
-            'account_id' => 'required|exists:accounts,id'
+            'account_id' => 'required|integer|exists:accounts,id'
         ];
     }
 }

@@ -158,8 +158,8 @@ class Product extends Model implements InteractWithRecommendation
                 'id' => 295,
                 'product_id' => 4,
                 'color_id' => 48,
-                'thumbnail' => "https://res.cloudinary.com/dpuuncbke/image/upload/q_auto/f_auto/v1/offers/2024-04-29_110732?_a=E",
-                'path' =>"https://res.cloudinary.com/dpuuncbke/image/upload/q_auto/f_auto/v1/offers/2024-04-29_110732?_a=E",
+                'thumbnail' => "https://api.xo-textile.sy/public/images/xo-logo.webp",
+                'path' =>"https://api.xo-textile.sy/public/images/xo-logo.webp",
                 'main_photo' => 1,
                 'deleted_at' => null,
                 'created_at' => "2024-01-10T19:57:56.000000Z",
@@ -175,9 +175,6 @@ class Product extends Model implements InteractWithRecommendation
     }
 
     return $photos;
-        // $colorIds = [12,15];
-	//    $defaultPhotoUrl = "https://res.cloudinary.com/dpuuncbke/image/upload/q_auto/f_auto/v1/offers/2024-04-29_110732?_a=E";
-		
     }
 
     public function reviews()

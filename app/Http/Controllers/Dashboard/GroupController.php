@@ -166,8 +166,8 @@ class GroupController extends Controller
                     'start_date' => 'required_if:group_type,discount|max:255',
                     'promotion_name' => 'required|string|max:255',
                     'end_date' => 'required_if:group_type,discount|max:255',
-                    'percentage' => 'required_if:group_type,discount|integer|lte:45',
-                    'promotion_type' => 'required_if:group_type,offer|in:BOGO,BOGH,BTGO,Pair',
+                    'percentage' => 'required_if:group_type,discount|integer|lte:90',
+                    'promotion_type' => 'required_if:group_type,offer|in:BOGO,BOGH,BTGO',
                     'number_of_items' => 'required_if:group_type,offer|max:255',
                     'image' => 'required|image|mimes:jpeg,bmp,png,webp,svg',
                 ]
@@ -210,8 +210,8 @@ class GroupController extends Controller
                     'promotion_name' => 'required|string|max:255',
                     'start_date' => 'required_if:group_type,discount|max:255',
                     'end_date' => 'required_if:group_type,discount|max:255',
-                    'percentage' => 'required_if:group_type,discount|integer|lte:45',
-                    'promotion_type' => 'required_if:group_type,discount|in:discount,flash_sales',
+                    'percentage' => 'required_if:group_type,discount|integer|lte:90',
+                    'promotion_type' => 'required_if:group_type,discount|in:flash_sales',
                     'image' => 'required|image|mimes:jpeg,bmp,png,webp,svg',
                 ]
             );

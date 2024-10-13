@@ -32,6 +32,14 @@ return [
         ],
         'resolver'     => OwenIt\Auditing\Resolvers\UserResolver::class
     ],
+	
+	'employee' => [
+		'morph_prefix' => 'employee',
+		'guards' => [
+			'api-employees'
+		],
+		'resolver' => App\Resolvers\EmployeeResolver::class // You'll need to create this resolver
+	],
 
     /*
     |--------------------------------------------------------------------------

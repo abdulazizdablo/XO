@@ -42,8 +42,6 @@ class HomeController extends Controller
     }
 
 	public function home(Request $request){
-		
-		if( 'a' == 'a'){
 
 		/*$ip_address = request()->ip();
 
@@ -53,7 +51,7 @@ class HomeController extends Controller
 		if($response['country'] == 'Syria' || $response['country'] == 'syria' ){*/
 			
 			
-		/*$validate = Validator::make(
+		$validate = Validator::make(
 			$request->only('version_number','op_sys'),
 			[
 			  'version_number' => 'required|string|max:10',
@@ -69,7 +67,7 @@ class HomeController extends Controller
 								   ['op_sys',$validate->validated()['op_sys']]])
 			->firstOrFail();
 		
-		if($version->is_deployed == 1){*/
+		if($version->is_deployed == 1){
 			return response()->json([
 				'map_init' => [33.5085, 36.2931],
 				'country' => 'home',
@@ -79,39 +77,50 @@ class HomeController extends Controller
 											 'url2' => null,
 											 'name' => 'Cash on delivery',
 											 'value' => 'cod',
+											 'hide_on_gift'=> 1,
 											 'number' => 0,
-											 'photo_url' => 'https://res.cloudinary.com/dpuuncbke/image/upload/q_auto/f_auto/v1/photo/cod?_a=E' ],
+											 'photo_url' => 'https://api.xo-textile.sy/public/images/payments/cod.jpg' ],
 									 'payment_method_1'=>['url1' => 'v1/syriatel-cash/payment-request', 
 														  'url2' => 'v1/syriatel-cash/payment-confirmation',
 									 					  'name' => 'Syriatel cash',
 														  'value' => 'syriatel-cash',
+														  'hide_on_gift'=> 0,
 														  'number' => 1,
-														  'photo_url' => 'https://res.cloudinary.com/dpuuncbke/image/upload/q_auto/f_auto/v1/photo/s-cash?_a=E'],
+														  'photo_url' => 'https://api.xo-textile.sy/public/images/payments/s-cash.jpg'],
 									 'payment_method_2'=>['url1' => 'v1/mtn-cash/payment-initiate', 
 														  'url2' => 'v1/mtn-cash/payment-confirmation',
 														  'name' => 'Cash Mobile',
 														  'value' => 'mtn-cash',
+														  'hide_on_gift'=> 0,
 														  'number' => 2,
-														  'photo_url' => 'https://res.cloudinary.com/dpuuncbke/image/upload/q_auto/f_auto/v1/photo/m-cash?_a=E' ],
+														  'photo_url' => 'https://api.xo-textile.sy/public/images/payments/m-cash.jpg' ],
 									 'payment_method_3'=>['url1' => null, 
 														  'url2' => null,
 														  'name' => 'ECash',
 														  'value' => 'ecash',
+														  'hide_on_gift'=> 0,
 														  'number' =>3,
-														  'photo_url' => 'https://res.cloudinary.com/dpuuncbke/image/upload/q_auto/f_auto/v1/photo/e-cash?_a=E']], // payment_method_1 is syriatel, payment_method_2 is mtn , payment_method_3 is ecash
+														  'photo_url' => 'https://api.xo-textile.sy/public/images/payments/e-cash.jpg']], // payment_method_1 is syriatel, payment_method_2 is mtn , payment_method_3 is ecash
 				'delivery_types' => ['other'=> ['name'=>'kadmous'], 'xo_dedlivery' =>['name' => 'xo_dedlivery' ]],
 				'xo_contact_number' => '+964987654321' ,
 				'base_url' => 'https://api.xo-textile.sy/public/api/'
 			]);
 		}else{
 			return response()->json([
+				'map_init' => [25.2048,55.2708],
 				'country' => 'other',
 				'currency' => 'AED',
-				'country_code' => '+60',
-				'payment_methods'=> ['cod'],
-				'delivery_methods' => ['xo_dedlivery'],
+				'country_code' => '+971',
+				'payment_methods'=> ['cod'=>['url1'=> null , 
+											 'url2' => null,
+											 'name' => 'Cash on delivery',
+											 'value' => 'cod',
+											 'hide_on_gift'=> 1,
+											 'number' => 0,
+											 'photo_url' => 'https://api.xo-textile.sy/public/images/payments/cod.jpg' ]],
+				'delivery_methods' => ['xo_dedlivery' =>['name' => 'xo_dedlivery' ]],
 				'xo_contact_number' => '+964987654321' ,
-				'base_url' => 'https://api.xo-textile.com'
+				'base_url' => 'https://xo-textile.blue-tech.ae/api/'
 			]);	
 		}
 

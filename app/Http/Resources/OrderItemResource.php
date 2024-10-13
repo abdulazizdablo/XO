@@ -80,7 +80,7 @@ class OrderItemResource extends JsonResource
             'product' => $product_variation->product->getFields($product_fields),
             'color' => $this->product_variation->color->getFields($color_fields),
             'photo' => $product_variation->product->photos,
-			'order_photo' => Photo::where([['product_id', $product_variation->product->id],['color_id',$product_variation->color_id]])->first()->path??"https://res.cloudinary.com/dpuuncbke/image/upload/q_auto/f_auto/v1/photo/2024-04-29_110732?_a=E",
+			'order_photo' => Photo::where([['product_id', $product_variation->product->id],['color_id',$product_variation->color_id]])->first()->path??"https://api.xo-textile.sy/public/images/xo-logo.webp",
             'variations'=> [
                             'colors' =>$product_variation->product->colors,
                             'sizes' =>$product_variation->product->sizes

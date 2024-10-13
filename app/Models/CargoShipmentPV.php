@@ -17,7 +17,7 @@ class CargoShipmentPV extends Model
         'cargo_shipment_id',
         'product_variation_id',
         'quantity',
-        'recieved'
+        'received'
 
 
     ];

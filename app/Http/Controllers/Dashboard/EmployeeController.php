@@ -47,10 +47,7 @@ class EmployeeController extends Controller
 	
 	    public function getUserNotifications()
     {
-
         //$this->send_notification('fEkiuCzgT3aXaoIUWjAOgY:APA91bHhu53TguvlQppO2ODYyEyu4SYYewxPfjj9nUXBus7rwMDUNPSPSLjJcpClUAqEJJwjweIyTPSGag81qr1McOrEuehufGkP8aBYFhwEDY5D0MBF8OBiD8lS6YQDiGVm2rABJxmA', 'توفر المنتج الخاص بك!', 'توفر الآن المقاس واللون اللذي أضفته لقائمة اللإشعارات', 'dress');
-
-
         try {
             $employee = auth('api-employees')->user();
             if (!$employee) {
@@ -60,11 +57,9 @@ class EmployeeController extends Controller
             //   $user_id = 1 ;
 			$page_size = request('pageSize');
             $notifications = Notification::where('employee_id', $employee->id)->latest();
-			if ($page_size > $notifications->count()) {
-
-						if ($notifications->count() == 0) {
-
-							throw new Exception('There Is No Notifications Available');
+			if ($page_size >= $notifications->count()) {
+						if ($notifications->count() == 0) {						
+							return response()->error('There is no notifications for you',404);	
 						}
 
 						//  $page_size = 1;

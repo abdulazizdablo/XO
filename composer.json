@@ -8,6 +8,7 @@
         "php": "^8.1.1",
         "cloudinary-labs/cloudinary-laravel": "^2.0",
         "cviebrock/eloquent-sluggable": "^9.0",
+        "google/auth": "^1.42",
         "guzzlehttp/guzzle": "^7.2",
         "intervention/image": "^2.7",
         "kutia-software-company/larafirebase": "^1.3",

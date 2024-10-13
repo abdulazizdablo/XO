@@ -50,49 +50,23 @@ class ProductController extends Controller
     }
 	
 	public function test(Request $request){
-		
+		$photos = Group::get();
+		foreach($photos as $photo){
+			$num = rand(1,85);
+			$photo->update([
+				'image_path'=>'https://api.xo-textile.sy/public/images/products/('.$num.').webp',
+				'image_thumbnail' => 'https://api.xo-textile.sy/public/images/products/('.$num.').webp',
+			]);	
+		}
+		return "done";		
 		try {
-			$defaultPhotoUrl = "https://res.cloudinary.com/dpuuncbke/image/upload/q_auto/f_auto/v1/offers/2024-04-29_110732?_a=E";
-				$productId = $request->input('product_id');
-				$colorIds = $request->input('color_ids');
-
-				$product = Product::findOrFail($productId);
-
-				// Fetch all columns instead of just id and path
-				$existingPhotos = Photo::where('product_id', $productId)
-					->whereIn('color_id', $colorIds)
-					->select(['id', 'path', 'main_photo'])
-					->get()
-					->keyBy('id'); // Key the collection by id
-
-				// Then, create a collection of all requested color IDs
-				$allColorIds = collect($colorIds);
-
-				// Filter out color IDs that already have photos
-				$missingColors = $allColorIds->diff($existingPhotos->pluck('color_id'));
-
-				// Create default photos for missing colors
-				return $defaultPhotos = collect($missingColors->map(function ($colorId) use ($defaultPhotoUrl, $productId) {
-					return [
-						'id' => null,
-						'path' => $defaultPhotoUrl,
-						'product_id' => $productId,
-						'color_id' => $colorId,
-						'main_photo' => 1,
-					];
-				}));
-
-				// Combine existing photos with default photos
-				$allPhotos = $existingPhotos->merge($defaultPhotos);
-
-				return $allPhotos;
+			$user = auth('sanctum')->user();
 			
-			return "test completed";		
-			
-			if (!$user) {
-                return response()->error('Unauthorized', 403);
-            }
-            $order_id = request('order_id');
+			if(!$user){
+				return response()->json('Unauthorized',403);
+			}
+            
+			$order_id = request('order_id');
 			
 			DB::beginTransaction();
 			$order = Order::where('user_id',$user_id)->findOrFail($order_id);
@@ -496,17 +470,16 @@ class ProductController extends Controller
     }
     public function getFlashSales()
     {
-            $flash_sales_products = $this->productService->getAllFlashSalesProducts();
+        $flash_sales_products = $this->productService->getAllFlashSalesProducts();
+			
+		if(is_string($flash_sales_products) ){
+			return response()->error(['message' => 'There is no products'], 404);
+		}
 		
-			if(is_string($flash_sales_products) ){
-	return response()->error($flash_sales_products,400);
-	
-	}
-		
- return response()->success(
-                $flash_sales_products,
-                Response::HTTP_OK
-  );
+		return response()->success(
+						$flash_sales_products,
+						Response::HTTP_OK
+		  );
     }
 
     public function getFavourite()

@@ -20,6 +20,7 @@ class CargoShipment extends Model
         'status',
         'request_id',
         'cargo_request_id',
+		'received_date',
         'ship_date',
         'from_inventory',
         'to_inventory',

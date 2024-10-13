@@ -24,7 +24,7 @@ class RevealPasswordEmpRequest extends FormRequest
     public function rules()
     {
         return [
-            'employee_id' => 'required|exists:employees,id'
+            'employee_id' => 'required|integer|exists:employees,id'
         ];
     }
 }

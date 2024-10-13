@@ -14,6 +14,7 @@ use App\Models\SubCategory;
 use App\Models\Color;
 use App\Models\Favourite;
 use App\Models\Group;
+use App\Models\Notify;
 use App\Models\Photo;
 use App\Models\Pricing;
 use App\Models\Product;
@@ -31,7 +32,8 @@ use App\Traits\TranslateFields;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
-use App\Traits\CloudinaryTrait;
+//use App\Traits\CloudinaryTrait;
+use App\Traits\PhotoTrait;
 use App\Http\Resources\ProductCollectionCopy;
 use Umutphp\LaravelModelRecommendation\HasRecommendation;
 use App\Http\Resources\ProductResourceCopy;
@@ -42,7 +44,7 @@ use Illuminate\Support\Facades\Log;
 
 class ProductService
 {
-    use CloudinaryTrait, HasRecommendation;
+    use PhotoTrait, HasRecommendation;
     public $fuzzy_prefix_length  = 2;
     public $fuzzy_max_expansions = 20;
     public $fuzzy_distance       = 10;
@@ -336,14 +338,17 @@ class ProductService
                     // 'group',
                 ]
             )->get();
-
             if (!$products) {
                 throw new Exception('There Is No Products Available');
             }
         } else if ($key == 'notified') {
+			$notifies = Notify::where('user_id', $user_id)->get()->pluck('product_variation_id')->toArray();
             $products = $user->notified_products()->with(
                 [
-                    'product_variations',
+                    'product_variations'=> function ($query)  use($notifies) {
+						// Add your conditions here
+						$query->whereIn('id', $notifies);
+					},
                     'product_variations.notifies',
                     'product_variations.size',
                     'product_variations.color',
@@ -356,8 +361,8 @@ class ProductService
                     // 'group',
                     // 'promotionable'
                 ]
-            )->get();
-
+            )->distinct()->get();
+			
             if (!$products) {
                 throw new Exception('There Is No Products Available');
             }
@@ -376,9 +381,14 @@ class ProductService
                     'group',
                 ]
             )->get();
+			//$f = ProductCollection::make($products_fav);
+			$notifies = Notify::where('user_id', $user_id)->pluck('product_variation_id')->toArray();
             $products_not = $user->notified_products()->with(
                 [
-                    'product_variations',
+                    'product_variations'=> function ($query) use($notifies) {
+						// Add your conditions here
+						$query->whereIn('id', $notifies);
+					},
                     'product_variations.notifies',
                     'product_variations.size',
                     'product_variations.color',
@@ -389,10 +399,9 @@ class ProductService
                     'photos:id,product_id,color_id,path,main_photo',
                     'group',
                 ]
-            )->get();
+            )->distinct()->get();
             $products = $products_fav->concat($products_not);
         }
-        // return $favorates_products;
         return ProductCollection::make($products);
     }
 
@@ -960,8 +969,8 @@ class ProductService
 				Photo::create([
 					'product_id' => $product_id,
 					'color_id' => $variations_item['color_id'],
-					'thumbnail' => "https://res.cloudinary.com/dpuuncbke/image/upload/q_auto/f_auto/v1/offers/2024-04-29_110732?_a=E",
-					'path' => "https://res.cloudinary.com/dpuuncbke/image/upload/q_auto/f_auto/v1/offers/2024-04-29_110732?_a=E",
+					'thumbnail' => "https://api.xo-textile.sy/public/images/xo-logo.webp",
+					'path' => "https://api.xo-textile.sy/public/images/xo-logo.webp",
 					'main_photo' => 1,
 				]);
 			
@@ -974,7 +983,7 @@ class ProductService
     {
         foreach ($photos_data as $photo) {
 			$xo_photo = Photo::where([['color_id',$photo['color_id']],
-									  ['path',"https://res.cloudinary.com/dpuuncbke/image/upload/q_auto/f_auto/v1/offers/2024-04-29_110732?_a=E"],
+									  ['path',"https://api.xo-textile.sy/public/images/xo-logo.webp"],
 									  ['product_id',$product_id]
 									 ])->first();
 			if($xo_photo){
@@ -984,7 +993,7 @@ class ProductService
             $color_id = $photo['color_id'];
             $main_photo = $photo['main_photo'];
 
-            $photo_path = $this->saveImage($image, 'products');
+            $photo_path = $this->saveImage($image, 'photo', 'products');
             $photo = Photo::create([
                 'product_id' => $product_id,
                 'color_id' => $color_id,
@@ -1010,7 +1019,7 @@ class ProductService
             $color_id = $photo['color_id'];
             $main_photo = $photo['main_photo'];
 
-            $photo_path = $this->saveImage($image, 'products');
+            $photo_path = $this->saveImage($image, 'photo', 'products');
             $photo = Photo::create([
                 'product_id' => $product_id,
                 'color_id' => $color_id,

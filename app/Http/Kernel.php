@@ -45,6 +45,8 @@ class Kernel extends HttpKernel
             'throttle:api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\CheckBanned::class,
+			// \App\Http\Middleware\CheckUserToken::class,
+			//'auth:sanctum'
         ],
     ];
 
@@ -71,5 +73,8 @@ class Kernel extends HttpKernel
         'CheckBanned' => \App\Http\Middleware\CheckBanned::class,
         'CheckIsSuperAdmin' => \App\Http\Middleware\CheckIsSuperAdmin::class,
         'check.sanctum.token' => \App\Http\Middleware\CheckSanctumToken::class,
+		'test-cors' => \App\Http\Middleware\TestCorsMiddleware::class
+		//'auth.sanctum' => 	 \App\Http\Middleware\CheckUserToken::class,
+		
     ];
 }

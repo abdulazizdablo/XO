@@ -286,9 +286,13 @@ return response()->error(['message' => 'Something went processing'],400);
                         ], 200);
                     }
                 }
-            } else {
+				
+            }elseif($data['Error'] == "Incorrect request signature"){
+					return response()->error(['message'=>"Network error, please try again later"], 400);	
+				} else {
 
-                return response()->error($data, 400);
+                return response()->error(['message'=>$data['Error']], 400);
+                //return response()->error($data, 400);
             }
     }
 

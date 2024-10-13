@@ -594,14 +594,7 @@ class UserController extends Controller
 			if(!$user){
 				return response()->json('Unauthorized',403);	
 			}
-			$userService = $this->userService->forceDelete($user->id);
-
-            return response()->success(
-                [
-                    'message' => 'User deleted successfully'
-                ],
-                Response::HTTP_OK
-            );
+			return $userService = $this->userService->forceDelete($user->id);  
         } catch (\Throwable $th) {
             return response()->error(
                 $th->getMessage(),

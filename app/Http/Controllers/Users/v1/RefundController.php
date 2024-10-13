@@ -80,13 +80,14 @@ class RefundController extends Controller
 			
             if ($order->replacedOrReturned == 1){
               //  throw new Exception('Order can not refunded');
-				return response()->error(['message' => trans('products.remove_favourite',[],$request->header('Content-Language'))])
+				return response()->error(['message' => trans('products.remove_favourite',[],$request->header('Content-Language'))] ,409);
+
             }
 			
 			if ($order->paid == 0 || $order->status != 'received' ) {
             	//throw new Exception('Order can not replaced');
 				
-							return response()->error(['message' => trans('refund.order_not_replaced',[],$request->header('Content-Language')) ,409]);
+							return response()->error(['message' => trans('refund.order_not_replaced',[],$request->header('Content-Language'))] ,409);
 
         	}
 			
@@ -141,7 +142,7 @@ class RefundController extends Controller
                     if ($order_item->order_id != $order->id) {
                        // throw new Exception('products does not belong to selected order');
 						
-									return response()->error(['message' => trans('order.order_replaced_error',[],$request->header('Content-Language')) ,409])
+									return response()->error(['message' => trans('order.order_replaced_error',[],$request->header('Content-Language'))] ,409);
 
                     }
 
@@ -234,7 +235,7 @@ class RefundController extends Controller
 
             DB::commit();        
 		//	return response()->json('Order refunded successfully');
-			return response()->success(['message' => trans('refund.order_refunded',[],$request->header('Content-Language')) ,409])
+			return response()->success(['message' => trans('refund.order_refunded',[],$request->header('Content-Language'))] ,200);
 		}catch (\Exception $e) {
 
             DB::rollBack();

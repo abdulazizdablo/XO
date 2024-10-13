@@ -51,6 +51,7 @@ foreach ($product_variations as $iterator => $product_variation) {
         $stockLevels[$iterator] = $stockLevel;
     }
 }
+		
 
 // Now, $stockLevels contains the stock levels for each product variation
 
@@ -66,10 +67,19 @@ $inventory_stock_levels = $stockLevels->filter(function ($item) use ($productVar
 });
 
 
+
+		if($inventory_stock_levels->isEmpty()){
+	
+	
+	
+		      $products_has_issues['This Product is not found'] = ProductVariation::FindOrFail($productVariationIds)->pluck('sku_code');
 		
-        foreach ($stockLevels as $iterator => $inventory_stock_level) {
+		}
+		
+		
+        foreach ($inventory_stock_levels as $iterator => $inventory_stock_level) {
 
-
+	//	dd($inventory_stock_level);
 
            
 			
@@ -198,18 +208,24 @@ $cargo_stock_level = [];
 foreach ($cargo_shipment_pv as $index => $item) {
 
 	
-	  $stock_level_from = $inventory_stock_levels->where('product_variation_id',$item['product_variation_id'])->where('inventory_id',$from_inventory)->first();
+	  $stock_level_from = StockLevel::where('product_variation_id',$item['product_variation_id'])->where('inventory_id',$from_inventory)->first();
 	
-		  $stock_level_to = $inventory_stock_levels->where('product_variation_id', $item['product_variation_id'])->where('inventory_id',$to_inventory)->first();
+	
+//	dd($stock_level_from);
+
+		  $stock_level_to = StockLevel::where('product_variation_id', $item['product_variation_id'])->where('inventory_id',$to_inventory)->first();
+	
 	
 	
 				     $newFromStockLevel = $stock_level_from->current_stock_level - $item['quantity'];
 
 				    $stock_level_from->current_stock_level = $newFromStockLevel;
+	                $stock_level_from->save();
 
-	
 
-	if(!$stock_level_to){
+
+
+	if(!$stockLevels){
 	
 	
 	$stock_level_to = StockLevel::create([
@@ -228,19 +244,19 @@ foreach ($cargo_shipment_pv as $index => $item) {
 	
 	
 	else {
-	
+
 	   // Update the model's attribute directly and save
           //  $item->update(['current_stock_lev.el' => $newStockLevel]);
 		
-                $newToStockLevel = $stock_level_to->current_stock_level + $item['quantity'];
+             //   $newToStockLevel = $stock_level_to->current_stock_level + $item['quantity'];
             // Update the model's attribute directly and save
           //  $item->update(['current_stock_level' => $newStockLevel]);
 			
 
-			$stock_level_to->current_stock_level = $newToStockLevel;
+		//	$stock_level_to->current_stock_level = $newToStockLevel;
 
 	
-			$stock_level_to->save();
+			//$stock_level_to->save();
 	
 	
 	

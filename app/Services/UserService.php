@@ -458,17 +458,23 @@ class UserService
     public function forceDelete($user_id)
     {
         $user = User::findOrFail($user_id);
-		$orders = Order::where('user_id', $user->id)->whereIn('status',['received','replaced','returned'])->get();
+		$order = Order::where('user_id', $user->id)->whereIn('status',['received','replaced','returned'])->first();
 		
-		if($orders){
-			return response()->error('You have some unfinshed orders, you can not delete your account if you did not complete your orders or cancel them', 400);
+		if($order){
+			return response()->error(['message'=>'You have some unfinshed orders, you can not delete your account if you did not complete your orders or cancel them'], 400);
 		}
 		
 		//$user->forceDelete();
         $user->update(['is_deleted'=>1,
 					   'phone'=> 'deleted account -'.$user->phone .'-'
 					  ]);
-    }
+    	return response()->success(
+                [
+                    'message' => 'User deleted successfully'
+                ],
+                200
+            );
+	}
 
 
     // method to update email for user and send a new verification to a new his email

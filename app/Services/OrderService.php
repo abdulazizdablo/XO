@@ -1580,7 +1580,20 @@ public function checkAvailable($order_items_data)
 						//'current_stock_level' => $return_stock_level->current_stock_level - $returned_order_item->quantity,
 						'sold_quantity' => $return_stock_level->sold_quantity + $returned_order_item->quantity
 					]);
-				$current_return_stock_level = StockLevel::where([['inventory_id',$returned_order_item->to_inventory],['product_variation_id',$returned_order_item->product_variation_id]])->first();	
+				$current_return_stock_level = StockLevel::where([['inventory_id',$returned_order_item->to_inventory],['product_variation_id',$returned_order_item->product_variation_id]])->first();
+				if(!$current_return_stock_level){
+					$current_return_stock_level = StockLevel::create([
+						'product_variation_id' => $returned_order_item->product_variation_id,
+						'inventory_id' => $returned_order_item->to_inventory,
+						'name' => Str::random(5),
+						'min_stock_level' => 3,
+						'max_stock_level' => 1000,
+						'target_date' => now(),
+						'sold_quantity' => 0,
+						'status' => 'slow-movement',
+						'current_stock_level' => 0
+					]);		
+				}
 				$current_return_stock_level->update([
 						'current_stock_level' => $current_return_stock_level->current_stock_level - $current_return_stock_level->quantity,
 						//'sold_quantity' => $return_stock_level->sold_quantity + $returned_order_item->quantity
@@ -2291,30 +2304,33 @@ public function checkAvailable($order_items_data)
 				throw new Exception('This order belongs to another inventory');
 			}
 
-			$order = Order::select('id', 'employee_id', 'inventory_id', 'user_id', 'invoice_number', 'payment_method', 'total_price', 'discounted_by_coupon', 'total_quantity', 'shipping_fee', 'status', 'is_gift', 'gift_message', 'packed_date', 'created_at', 'shipping_date', 'receiving_date')
+			$order = Order::select('id', 'employee_id','original_order_id', 'inventory_id', 'user_id', 'invoice_number', 'payment_method', 'total_price', 'discounted_by_coupon', 'total_quantity', 'shipping_fee', 'status', 'is_gift', 'gift_message', 'packed_date', 'created_at', 'shipping_date', 'receiving_date')
 				->with([
 					'user:id,first_name,last_name,phone',
 					'employee:id,first_name,last_name,phone,shift_id',
 					'employee.shift',
-					'shipment:id,order_id,type,time,date,city,street,neighborhood,express',
+					'shipment:id,receiver_first_name,receiver_father_name,receiver_last_name,receiver_phone,order_id,type,time,date,city,street,neighborhood,express',
 					'feedback',
 				])
 				->where('id', $order_id)
 				->get();
-
+			$orderStatus = Order::findOrFail($order_id)->status;
+			$isCanceled = $orderStatus == 'canceled'? true: false;
 			// Transform payment_method for each order
 			/*foreach ($order as &$item) {
 				$item->payment_method = $item->getPaymentMethodAttribute($item->payment_method);
 			}*/ // use ->get() instead of ->findOrFail()
             // use the ->transform() method to modify the JSON structure
-            return $order->transform(function ($order) {
+            return $order->transform(function ($order) use($isCanceled){
                 // create a new status object with the date attributes
+				$order->total_price = $order->total_price - $order->discounted_by_coupon;
                 $order->status = [
                     'ordered' => (\DateTime::createFromFormat('Y-m-d H:i:s', $order->created_at))->format('Y-m-d H:i:s'),
                     'packed' => $order->packed_date,
                     'shipping' => $order->shipping_date,
                     'receiving' => $order->receiving_date,
                 ];
+				$order->isCanceled = $isCanceled;
                 // unset the original date attributes
                 unset ($order->packed_date, $order->created_at, $order->shipping_date, $order->receiving_date);
                 // return the modified order object
@@ -2333,16 +2349,17 @@ public function checkAvailable($order_items_data)
 				$order_id = Order::where('invoice_number',$order->invoice_number)->latest()->first()->id;
 			}
             // return Order::find($order_id)>select(['id','invoice_number','total_price','paid_by_user','created_at'])
-            $order = Order::select(['id', 'invoice_number', 'payment_method', 'total_price', 'paid_by_user', 'shipping_fee', 'total_quantity', 'created_at'])
+            $order = Order::select(['id', 'invoice_number','total_quantity', 'payment_method', 'total_price', 'paid_by_user','discounted_by_coupon','price_without_offers','gift_id', 'shipping_fee', 'total_quantity', 'created_at'])
                 ->where('id', $order_id)
                 ->firstOrFail()
                 ->load([
                     'order_items:id,product_variation_id,order_id,quantity,original_price,price',
                     'order_items.product_variation:id,product_id', // Load the product variation
                     'order_items.product_variation.product:id,name', // Load the product through the product variation
-                    'shipment:id,order_id,type,receiver_first_name,date,time,receiver_last_name,city,street,neighborhood'
+                    'shipment:id,order_id,type,receiver_first_name,date,time,receiver_last_name,city,street,neighborhood',
+					'invoice:id,order_id,gift_card_balance,coupon_percenage'
                 ]);
-
+			$order->discounted_price = $order->total_price - $order->discounted_by_coupon;
             return $order;
         } catch (Exception $th) {
             throw new Exception($th->getMessage());

@@ -112,6 +112,10 @@ class CargoShipmentPVController extends Controller
 					]);
 				}
 				
+				else {$stockLevel->update(['current_stock_level' => $stockLevel->current_stock_level + $item['quantity']]);}
+				
+			
+				
   				$product_variation = ProductVariation::findOrFail($item['product_variation_id']);
 				$product_slug = $product_variation->product?->slug;
   				$product_variation_notifies = $product_variation->notifies()->get();
@@ -159,7 +163,27 @@ class CargoShipmentPVController extends Controller
 			// and createMany expects an array of items to be created.
 			// Ensure this part is correctly implemented to handle each item.
 			// This might need adjustment based on your actual implementation.
-			$cargo_shipment_pv = $cargo_shipment->cargo_shipment_pv()->createMany($request->cargo_shipment_items);
+			
+			$shipment_items = $request->cargo_shipment_items;
+			
+		foreach($shipment_items as  &$shipment_item){
+					
+
+			
+			$shipment_item['received'] = $shipment_item['quantity'];
+				//	dd($shipment_item);
+			
+			}
+			
+			//	dd($shipment_items);
+			
+			$cargo_shipment->received_date = now();
+			$cargo_shipment->save();
+		
+			$cargo_shipment_pv = $cargo_shipment->cargo_shipment_pv()->createMany($shipment_items);
+			
+		//	dd($cargo_shipment->cargo_shipment_pv());
+
 
 			//}
 
@@ -180,16 +204,21 @@ class CargoShipmentPVController extends Controller
         $cargo_shipment->status = 'open';
         $cargo_shipment->shipment_name = $shipment_name;
         if (isset($request['cargo_shipment']['cargo_request_id'])) {
+		//	dd(isset($request['cargo_shipment']['cargo_request_id']));
             $cargo_request = CargoRequest::findOrFail($request['cargo_shipment']['cargo_request_id']);
-            
+           // dd($cargo_request);
 			if (isset($request['cargo_shipment']['cargo_request_id'])) {
-                $this->cargo_shipment_pv_service->calculateNewStock($cargo_shipment, 
+               $hello =  $this->cargo_shipment_pv_service->calculateNewStock($cargo_shipment, 
 																	$request->cargo_shipment_items, 
 																	$request['cargo_shipment']['from_inventory'],
 																	$request['cargo_shipment']['to_inventory']);
+				
+			
             }
 			
             $cargo_shipment->to_inventory = $cargo_request->to_inventory;
+			
+			
 
             $cargo_shipment->save();
         } else {
@@ -219,8 +248,8 @@ class CargoShipmentPVController extends Controller
                 //$employee_id = 1;
                 // $cargo_shipment = CargoShipment::create(array_merge($request->cargo_shipment, ['shipment_name' => $shipment_name,'status' => 'open','employee_id' => $employee_id ]));
 			
-
-                $cargo_shipment_pv = $cargo_shipment->cargo_shipment_pv()->createMany($request->cargo_shipment['cargo_shipment_items']);
+//dd($request['cargo_shipment']);
+                $cargo_shipment_pv = $cargo_shipment->cargo_shipment_pv()->createMany(/*$request->cargo_shipment['cargo_shipment_items'] ??*/ $request['cargo_shipment_items'] );
                 $request_to_ship = CargoRequest::findOrFail($request->cargo_shipment['cargo_request_id'])->load('cargo_request_pv');
                 $request_to_ship->update(['status' => 'pending', 'request_status_id' => CargoRequestStatus::PENDING]);
                 /*   if ($cargo_shipment->from_inventory == 'first_point') {
@@ -268,7 +297,7 @@ class CargoShipmentPVController extends Controller
                 DB::rollBack();
 				
                 if (!$e instanceof ModelNotFoundException || !$e instanceof OutOfStockException) {
-                    return response()->error(['message' => $e], 400);
+                    return response()->error(['message' => $e->getMessage(),$e->getLine()], 400);
                 } else
                     throw $e;
             }
@@ -306,17 +335,30 @@ class CargoShipmentPVController extends Controller
             ->findOrFail($request->cargo_shipment_id);
 
         if (!$cargo_shipment->cargo_request) {
-            $cargo_shipment->update(['status' => 'closed']);
-            $cargo_shipment->cargo_shipment_pv->each(function ($item) use ($request) {
+            $cargo_shipment->update(['status' => 'closed','received_date' => now()]);
+            $cargo_shipment->cargo_shipment_pv->each(function ($item) use ($request,$cargo_shipment) {
 
                 $received_item = collect($request->items_received)->where('product_variation_id', $item->product_variation_id)->first();
                 if ($received_item) {
                     $item->update(['received' => $received_item['quantity']]);
+					//	dd(	$cargo_shipment);
+					$stock_level = $item->product_variation()->first()->stock_levels()->where('inventory_id',$cargo_shipment->from_inventory)->first();
+					
+					$stock_level->update([
+					'on_hold' => $stock_level->on_hold - $received_item['quantity'],
+						'current_stock_level' => $received_item['quantity']
+					
+					]);  
                 }
+							
+
+				
             });
+			   return response()->success($cargo_shipment->cargo_shipment_pv, 200);
+			
         } else {
             $cargo_request = $cargo_shipment->cargo_request;
-            $cargo_shipment->update(['status' => 'closed']);
+            $cargo_shipment->update(['status' => 'closed','received_date' => now()]);
             $cargo_request->update([
                 'status' => 'closed',
                 'request_status_id' => CargoRequestStatus::CLOSED,
@@ -325,14 +367,26 @@ class CargoShipmentPVController extends Controller
 
 
 
-            $cargo_request->cargo_requests_pv->each(function ($item) use ($request) {
-                $received_item = collect($request->items_received)->where('product_variation_id', $item->product_variation_id)->first();
-                if ($received_item) {
-                    $item->update(['requested_from_manager' => $received_item['quantity']]);
-                }
-            });
-        }
+          $cargo_request->cargo_requests_pv->each(function ($item) use ($request) {
+    $received_item = collect($request->items_received)
+        ->where('product_variation_id', $item->product_variation_id)
+        ->first();
+
+    if ($received_item) {
+        $item->update(['requested_from_manager' => $received_item['quantity']]);
+		     
+
+	$stock_level = $item->product_variation()->first()->stock_levels()->where('inventory_id',$cargo_shipment->from_inventory)->first();
+					
+					$stock_level->update([
+					'on_hold' => $stock_level->on_hold - $received_item['quantity'],
+						'current_stock_level' => $received_item['quantity']
+					
+					]);  
+    }
+});
 
         return response()->success($cargo_shipment->cargo_shipment_pv, 200);
     }
+	}
 }
