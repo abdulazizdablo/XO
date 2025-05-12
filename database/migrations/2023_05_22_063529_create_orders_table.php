@@ -41,7 +41,6 @@ return new class extends Migration
 
             $table->foreign('inventory_id')->references('id')->on('inventories');
             $table->foreign('employee_id')->references('id')->on('employees');
-            $table->foreign('packaging_id')->references('id')->on('packages');
             $table->foreign('coupon_id')->references('id')->on('coupons');
             $table->foreign('branch_id')->references('id')->on('branches');
             $table->softDeletes();

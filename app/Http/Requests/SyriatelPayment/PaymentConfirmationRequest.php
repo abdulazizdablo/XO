@@ -26,7 +26,7 @@ class PaymentConfirmationRequest extends FormRequest
     {
 
         $rules = [
-            'OTP' => 'required|string|digits:6',
+            'OTP' => 'required|string',//|digits:4',
             'order_id' => 'sometimes|exists:orders,id',
             'gift_id' => 'required_with:gift_code|exists:coupons,id',
             'gift_code' => 'required_with:gift_id|exists:coupons,code|string',

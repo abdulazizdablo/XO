@@ -25,7 +25,8 @@ class ResetPasswordRequest extends FormRequest
     {
         return [
             'phone' => 'required|string|exists:users,phone',
-            'password' => 'required|confirmed|min:8'
+            'password' => 'required|confirmed|min:8',
+            'verification_code' => 'required|digits:4'
         ];
     }
 /*

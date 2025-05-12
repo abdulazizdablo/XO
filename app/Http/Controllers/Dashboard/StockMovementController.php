@@ -386,14 +386,4 @@ class StockMovementController extends Controller
         }
     }
 
-    // public function searchProduct()
-    // {
-    //     $shipment_name = request('key');
-    //     $shipment = $this->stockMovementService->searchProduct($shipment_name);
-
-    //     return response()->success(
-    //         $shipment,
-    //         Response::HTTP_OK
-    //     );
-    // }
 }

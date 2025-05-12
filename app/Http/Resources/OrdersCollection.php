@@ -54,7 +54,6 @@ class OrdersCollection extends ResourceCollection
                     'order_id' => $item->id,
                     'user_id' => $item->user_id,
                     'packaging_id' => $item->packaging_id,
-                    'feedback_id' => $item->feedback_id,
                     'coupon_id' => $item->coupon_id,
                     'delivery_date' => $item->delivery_date,
                     'created_at' => $item->created_at,

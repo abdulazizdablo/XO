@@ -23,7 +23,8 @@ class StoreExchangeRequest extends FormRequest
      */
     public function rules()
     {
-        return [
+        return [					
+			'inventory_id' => 'nullable|exists:inventories,id' ,
             'order_id' => 'required|exists:orders,id',
             'date' => 'required|string',
             'time' => 'required|string|max:30',

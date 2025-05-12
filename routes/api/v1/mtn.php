@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\MTNPaymentController;
+use App\Http\Controllers\MTNPaymentTestController;
 use App\Http\Controllers\SyriateCashController;
 use Illuminate\Support\Facades\Route;
 
@@ -13,14 +14,13 @@ Route::group(
     ],
     function () {
         //Route::post('authenticate-merchant', [MTNPaymentController::class, 'authenticateMerchant'])->name('index');
-        Route::post('activate-terminal', [MTNPaymentController::class, 'activate']);
-
-        Route::post('create-invoice', [MTNPaymentController::class, 'createInvoice']);
-        Route::post('payment-initiate', [MTNPaymentController::class, 'initiatePayment']);
-        Route::post('payment-confirmation', [MTNPaymentController::class, 'confirmPayment']);
-        Route::post('refund-initiate', [MTNPaymentController::class, 'initiateRefund']);
-        Route::post('refund-confirmation', [MTNPaymentController::class, 'confirmRefund']);
-        Route::post('refund-cancel', [MTNPaymentController::class, 'cancelRefund']);
-        Route::post('test', [MTNPaymentController::class, 'test']);
+        Route::post('activate-terminal', [MTNPaymentTestController::class, 'activate']);
+        Route::post('create-invoice', [MTNPaymentTestController::class, 'createInvoice']);//si
+        Route::post('payment-initiate', [MTNPaymentTestController::class, 'initiatePayment']);//si
+        Route::post('payment-confirmation', [MTNPaymentTestController::class, 'confirmPayment']);//si
+        Route::post('refund-initiate', [MTNPaymentTestController::class, 'initiateRefund']);
+        Route::post('refund-confirmation', [MTNPaymentTestController::class, 'confirmRefund']);
+        Route::post('refund-cancel', [MTNPaymentTestController::class, 'cancelRefund']);
+        Route::post('test', [MTNPaymentTestController::class, 'test']);
     }
 );

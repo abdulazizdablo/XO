@@ -25,15 +25,15 @@ class UpdateAddressRequest extends FormRequest
     public function rules()
     {
         return [
-            'address.id' => 'required',
+            'address.id' => 'required|exists:addresses,id',
             'address.city' => 'required_without:address.city_id|string|max:255',
             'address.city_id' => 'required_without:address.city|integer|exists:cities,id',  
             'address.neighborhood' => 'nullable|string|max:255',
             'address.street' => 'sometimes|string|max:255',
             'address.another_details' => 'nullable|string|max:255',
             'address.lat_long' => 'sometimes|regex:/^[+-]?\d+\.\d+,[+-]?\d+\.\d+$/',
-            'address.phone_number_two' => 'sometimes|string|max:255',
-			'address.phone' => 'sometimes|string|max:255'
+            'address.phone_number_two' => 'sometimes|string|max:20',
+			'address.phone' => 'sometimes|string|max:20'
         ];
     }
 

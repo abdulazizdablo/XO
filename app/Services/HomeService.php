@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ProductVariation;
+use App\Models\Setting;
 use Exception;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -40,7 +41,7 @@ class HomeService
 		
 		$OrderItemsCounts = OrderItem::where('status',null)->count();
 		$allOrdersCounts = Order::count();
-		$allOpenOrdersCounts = Order::where('paid', 0)->count();
+		$allOpenOrdersCounts = Order::whereIn('status', ['processing','in_delivery'])->count();
 
 		if($orders_dateScope == 'Today' ){
 			$ordersExceptThisMonth = Order::whereDate('created_at', '>', Carbon::now()->startOfDay())->count();
@@ -85,13 +86,17 @@ class HomeService
 		}
 		
 		if ($old_order_counts == 0) {
-			$percentageDifferenceOpenOrders = 0;
+			if($new_order_counts == 0){
+				$percentageDifferenceOpenOrders = 0;	
+			}else{
+				$percentageDifferenceOpenOrders = 100;
+			}
 		} else {
 			$percentageDifferenceOpenOrders = (($new_order_counts - $old_order_counts) / $old_order_counts) * 100;
 		}
 
 		if($sales_dateScope == 'Today'){
-			$new_sales_counts = Order::whereDate('created_at', '>', Carbon::now()->startOfDay())
+			$new_sales_counts = Order::whereDate('created_at', '>=', Carbon::now()->startOfDay())
 				->when($inventory_id, function ($query, $inventory_id) {
                 return $query->where('inventory_id', $inventory_id);
             })->sum('total_price');
@@ -130,13 +135,17 @@ class HomeService
 		}
 		
 		if ($old_sales_counts == 0) {
-			$percentageDifferenceOrders = 0;
+			if($new_sales_counts == 0){
+				$percentageDifferenceOrders = 0;
+			}else{
+				$percentageDifferenceOrders = 100;
+			}
 		} else {
 			$percentageDifferenceOrders = (($new_sales_counts - $old_sales_counts) / $old_sales_counts) * 100;
 		}
 		
 		if($sold_dateScope == 'Today'){
-			$new_sold_items = OrderItem::whereDate('created_at', '>', Carbon::now()->startOfDay())/*->where('status',null)*/
+			$new_sold_items = OrderItem::whereDate('created_at', '>=', Carbon::now()->startOfDay())/*->where('status',null)*/
 				->when($inventory_id, function ($query, $inventory_id) {
                 	return $query->whereHas('order', function ($query) use ($inventory_id) {
                 		$query->where('inventory_id', $inventory_id);
@@ -191,7 +200,11 @@ class HomeService
             });})->count();
 		}
 		if ($old_sold_items == 0) {
-			$percentageDifferenceOrderItems = 0;
+			if($new_sold_items == 0){
+				$percentageDifferenceOrderItems = 0;
+			}else{
+				$percentageDifferenceOrderItems = 100;
+			}
 		} else {
 			$percentageDifferenceOrderItems = (($new_sold_items - $old_sold_items) / $old_sold_items) * 100;
 		}
@@ -254,7 +267,7 @@ class HomeService
     
         $totalOrders = $ordersByStatus->sum('order_count');
     
-        $allStatuses = ['processing', 'in_delivery', 'received', 'canceled', 'returned', 'replaced', 'fulfilled'];
+        $allStatuses = ['canceled', 'fulfilled', 'in_delivery', 'processing',  'received', 'replaced', 'returned'];
     
         foreach ($allStatuses as $status) {
             if (!$ordersByStatus->contains('status', $status)) {
@@ -275,6 +288,10 @@ class HomeService
             $order->percentage = intval(round($percentage, 2));
             return $order;
         });
+
+		$orderStatusData = $orderStatusData->sortBy(function ($order) use ($allStatuses) {
+			return array_search($order->status, $allStatuses);
+		})->values(); // Ensure the collection keys are reset to sequential integers
     
         if (!$orderStatusData) {
             throw new InvalidArgumentException('There Is No Revenues Available');
@@ -461,7 +478,6 @@ class HomeService
         // if(!isset($year) && $year == null){
         //     $year = Carbon::now()->format('Y');
         // }
-
         if ((!isset($month) && $month == null)) {
             $revenues = collect(
                 Order::query()
@@ -523,104 +539,86 @@ class HomeService
 
 
 
-    public function orderCounts()
-    {
-        $year = request('year');
-        $month = request('month');
-        $status1 = request('status1');
-        $status2 = request('status2');
+	public function orderCounts()
+	{
+		$year = request('year');
+		$month = request('month');
+		$status1 = request('status1');
+		$status2 = request('status2');
 
-        if ($year != null && $month == null) {
+		$allOrders = Order::count();
+		
+		$new_order_counts = Order::whereDate('created_at', '>=', Carbon::now()->subMonth()->startOfDay())->count();
+			$old_order_counts = Order::whereBetween('created_at', [Carbon::now()->subMonths(2)->startOfDay(), Carbon::now()->subMonth()->startOfDay()])->count();
+		
+		if ($old_order_counts == 0) {
+			$percentageDifferenceOpenOrders = 100;
+		} else {
+			$percentageDifferenceOpenOrders = (($new_order_counts - $old_order_counts) / $old_order_counts) * 100;
+		}
 
-            $allOrders = Order::count();
-			$ordersPreviousMonth = Order::whereBetween('created_at', [
-																		Carbon::now()->subMonth()->startOfMonth(),
-																		Carbon::now()->subMonth()->endOfMonth()
-																	])->count();
-			$ordersExceptThisMonth = Order::where('created_at', '<', Carbon::now()->startOfMonth())->count();
-			//$ordersExceptThisMonth = Order::where('created_at', '<', Carbon::now()->startOfDay())->count();
-            /*if ($ordersExceptThisMonth == 0) {
-                $percentageDifference = 0;
-            } else {
-                $percentageDifference = (($allOrders - $ordersExceptThisMonth) / $ordersExceptThisMonth) * 100;
-            }*/
-			$percentageDifference = $ordersPreviousMonth == 0 ? 'N/A' : (($ordersExceptThisMonth - $ordersPreviousMonth) / $ordersPreviousMonth) * 100;
-            $months = range(1, 12);
+		if ($month) {
+			
+			$ordersExceptThisMonth = Order::whereDate('created_at', '<', Carbon::now()->startOfMonth())->count();
 
-            $status1OrdersByMonth = DB::table('orders')
-                ->select(DB::raw('MONTH(created_at) as month'), DB::raw('COUNT(*) as count'))
-                ->whereYear('created_at', $year)
-                ->where('status', $status1)
-                ->groupBy(DB::raw('MONTH(created_at)'))
-                ->get();
+			$percentageDifference = $ordersExceptThisMonth > 0 
+				? (($allOrders - $ordersExceptThisMonth) / $ordersExceptThisMonth) * 100 
+				: 0;
 
+			$daysInMonth = Carbon::createFromDate($year, $month)->daysInMonth;
 
-            $data1 = [];
+			$data1 = $data2 = collect();
 
+			for ($day = 0; $day <= $daysInMonth; $day++) {
+				$date = Carbon::createFromDate($year, $month, $day);
 
-            foreach ($months as $month) {
-                $data1[$month] = 0;
-            }
+				$status1Count = Order::whereYear('created_at', $year)
+					->whereMonth('created_at', $month)
+					->whereDay('created_at', $day)
+					->whereStatus($status1)
+					->count();                
+				$status2Count = Order::whereYear('created_at', $year)
+					->whereMonth('created_at', $month)
+					->whereDay('created_at', $day)
+					->whereStatus($status2)
+					->count();    
+				$data1 = $data1->merge([$day => $status1Count]);
+				$data2 = $data2->merge([$day => $status2Count]);
+			}
 
+			return ['allOrders' => $allOrders, 'percentageDifference' => $percentageDifferenceOpenOrders, 'data1' => $data1->toArray(), 'data2' => $data2->toArray()];
+		} else {
+			// Handle year-only query
+			$months = range(1, 12);
 
-            foreach ($status1OrdersByMonth as $item) {
-                $data1[$item->month] = $item->count;
-            }
+			$status1OrdersByMonth = Order::whereYear('created_at', $year)
+				->whereStatus($status1)
+				->select(DB::raw('MONTH(created_at) as month'), DB::raw('COUNT(*) as count'))
+				->groupBy(DB::raw('MONTH(created_at)'))
+				->get();
 
-            $status2OrdersByMonth = DB::table('orders')
-                ->select(DB::raw('MONTH(created_at) as month'), DB::raw('COUNT(*) as count'))
-                ->whereYear('created_at', $year)
-                ->where('status', $status2)
-                ->groupBy(DB::raw('MONTH(created_at)'))
-                ->get();
+			$data1 = collect($months)->map(function () { return 0; });
 
-            $data2 = [];
+			foreach ($status1OrdersByMonth as $item) {
+				$data1[$item->month] = $item->count;
+			}
 
-            foreach ($months as $month) {
-                $data2[$month] = 0;
-            }
+			$status2OrdersByMonth = Order::whereYear('created_at', $year)
+				->whereStatus($status2)
+				->select(DB::raw('MONTH(created_at) as month'), DB::raw('COUNT(*) as count'))
+				->groupBy(DB::raw('MONTH(created_at)'))
+				->get();
 
-            foreach ($status2OrdersByMonth as $item) {
-                $data2[$item->month] = $item->count;
-            }
-            return ['allOrders' => $allOrders, 'percentageDifference' => $percentageDifference, 'data1' => $data1, 'data2' => $data2];
-        } elseif ($year != null && $month != null) {
-            $allOrders = Order::count();
-            $ordersExceptThisMonth = Order::where('created_at', '<', Carbon::now()->startOfMonth())->count();
-            if ($ordersExceptThisMonth == 0) {
-                $percentageDifference = 0;
-            } else {
-                $percentageDifference = (($allOrders - $ordersExceptThisMonth) / $ordersExceptThisMonth) * 100;
-            }
-            $daysInMonth = Carbon::createFromDate($year, $month)->daysInMonth;
-            $data1 = [];
-            $data2 = [];
+			$data2 = collect($months)->map(function () { return 0; });
 
-            for ($day = 1; $day <= $daysInMonth; $day++) {
-                $status1OrdersByDay = DB::table('orders')
-                    ->select(DB::raw('DAY(created_at) as day'), DB::raw('COUNT(*) as count'))
-                    ->whereYear('created_at', $year)
-                    ->whereMonth('created_at', $month)
-                    ->where('status', $status1)
-                    ->whereDay('created_at', $day)
-                    ->groupBy(DB::raw('DAY(created_at)'))
-                    ->get();
+			foreach ($status2OrdersByMonth as $item) {
+				$data2[$item->month] = $item->count;
+			}
 
-                $status2OrdersByDay = DB::table('orders')
-                    ->select(DB::raw('DAY(created_at) as day'), DB::raw('COUNT(*) as count'))
-                    ->whereYear('created_at', $year)
-                    ->whereMonth('created_at', $month)
-                    ->where('status', $status2)
-                    ->whereDay('created_at', $day)
-                    ->groupBy(DB::raw('DAY(created_at)'))
-                    ->get();
+			return ['allOrders' => $allOrders, 'percentageDifference' => $percentageDifferenceOpenOrders, 'data1' => $data1->toArray(), 'data2' => $data2->toArray()];
+		}
+	}
 
-                $data1[$day] = $status1OrdersByDay->count();
-                $data2[$day] = $status2OrdersByDay->count();
-            }
-            return ['allOrders' => $allOrders, 'percentageDifference' => $percentageDifference, 'data1' => $data1, 'data2' => $data2];
-        }
-    }
 
 
 

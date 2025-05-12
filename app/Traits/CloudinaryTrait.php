@@ -20,12 +20,11 @@ trait CloudinaryTrait
   {
     // Check if the photo is null
     if ($photo == null) return '';
-    $path = $folder;
-    $fileNameWithExtension = $photo->getClientOriginalName();
-    // Get the file name without the extension
-    $fileName = pathinfo($fileNameWithExtension, PATHINFO_FILENAME);
-    $result = $photo->storeOnCloudinaryAs($path, $fileName);
-    $publicId =  $result->getPublicId();
+	  $path = $folder;
+	  $originalName = pathinfo($photo->getClientOriginalName(), PATHINFO_FILENAME);
+	  $uniqueName = $originalName . '_' . time() . '_' . uniqid();
+	  $result = $photo->storeOnCloudinaryAs($path, $uniqueName);
+	  $publicId = $result->getPublicId();
 	
     $cld = new Cloudinary();
 	  

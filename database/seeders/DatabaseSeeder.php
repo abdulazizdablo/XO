@@ -32,7 +32,6 @@ class DatabaseSeeder extends Seeder
         $this->call(GroupSeeder::class);
         $this->call(ProductSeeder::class);
         $this->call(CouponSeeder::class);
-        // $this->call(VariationSeeder::class);
         $this->call(ProductVariationSeeder::class);
         $this->call(GroupOfferSeeder::class);
         $this->call(GroupDiscountSeeder::class);
@@ -41,10 +40,7 @@ class DatabaseSeeder extends Seeder
         $this->call(BranchSeeder::class);
         $this->call(FavouriteSeeder::class);
         $this->call(NotifySeeder::class);
-        $this->call(PackageSeeder::class);
         $this->call(OrderSeeder::class);
-        //$this->call(FeedbackSeeder::class);
-        // $this->call(ReturnOrderSeeder::class);
         $this->call(OrderItemSeeder::class);
         // $this->call(ShipmentSeeder::class);
         $this->call(PricingSeeder::class);
@@ -53,16 +49,11 @@ class DatabaseSeeder extends Seeder
         $this->call(StockMovementSeeder::class);
         $this->call(StockVariationSeeder::class);
         // $this->call(SizeGuideSeeder::class);
-        // $this->call(TransferSeeder::class);
-        // $this->call(TransferItemSeeder::class);
-        // $this->call(SubOrderSeeder::class);
-        // $this->call(CommentSeeder::class);
        // $this->call(RolesAndPermissionsSeeder::class);
         $this->call(RolesSeeder::class);
         
         $this->call(AccountRoleSeeder::class);
         $this->call(AssignDurationSeeder::class);
-        $this->call(UserComplaintSeeder::class);
 
         // \App\Models\User::factory(10)->create();
 

@@ -6,6 +6,7 @@ use Spatie\Translatable\HasTranslations;
 use App\Traits\TranslateFields;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 use \Staudenmeir\EloquentHasManyDeep\HasRelationships;
@@ -14,11 +15,12 @@ class Group extends Model
 {
     use HasSlug;
     use HasFactory;
+	use SoftDeletes;
     use HasRelationships;
     use HasTranslations, TranslateFields;
 
     public $translatable = [
-        'tag', 'name'
+        'expired', 'name'
     ];
 
     protected $fillable = [
@@ -26,7 +28,7 @@ class Group extends Model
         'promotion_type',
         'name',
         'valid',
-        'tag',
+        'expired',
         'percentage' , 
         'number_of_items',
         'image_path',

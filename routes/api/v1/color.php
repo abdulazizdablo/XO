@@ -11,13 +11,8 @@ Route::group(
         'as' => 'dashboard.colors.'
     ],
     function () {
-        Route::get('', [AdminColorController::class, 'index'])->name('index');
-        Route::get('show', [AdminColorController::class, 'show'])->name('show');
-        Route::post('store', [AdminColorController::class, 'store'])->name('store');
-        Route::post('update', [AdminColorController::class, 'update'])->name('update');
-        Route::get('search', [AdminColorController::class, 'search'])->name('search');
-        Route::delete('delete', [AdminColorController::class, 'destroy'])->name('delete');
-        Route::delete('', [AdminColorController::class, 'forceDelete'])->name('force.delete');
+        Route::get('', [AdminColorController::class, 'index']);//si
+        Route::post('store', [AdminColorController::class, 'store'])->middleware('CheckIfEmployee');//si
     }
 );
 
@@ -28,11 +23,6 @@ Route::group(
     ],
     function () {
         Route::get('', [UserColorController::class, 'index'])->name('index');
-        Route::get('show', [UserColorController::class, 'show'])->name('show');
-        Route::post('store', [UserColorController::class, 'store'])->name('store');
-        Route::post('update', [UserColorController::class, 'update'])->name('update');
-        Route::post('delete', [UserColorController::class, 'destroy'])->name('delete');
-        Route::get('search', [UserColorController::class, 'search'])->name('search');
-
     }
 );
+

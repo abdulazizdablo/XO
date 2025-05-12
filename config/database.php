@@ -72,6 +72,7 @@ return [
             'username' => env('DB_USERNAME', 'forge'),
             'password' => env('DB_PASSWORD', ''),
             'charset' => 'utf8',
+			'timezone' => '+03:00',
             'prefix' => '',
             'prefix_indexes' => true,
             'search_path' => 'public',

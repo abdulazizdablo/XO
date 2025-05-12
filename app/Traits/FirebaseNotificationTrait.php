@@ -21,8 +21,30 @@ trait FirebaseNotificationTrait
     }
  
    // function send_notification($user_fcm_token, $title_ar, $title_en, $body_ar, $body_en, $type, $server_key, $priority = null)
-    function send_notification($user_fcm_token, $title, $body, $type, $server_key, $priority = null)
+    function send_notification($user_fcm_token, $title, $body, $type, $server_key, $priority = null, $details = null)
     {
+		if($server_key == 'flutter_app'){
+			$this->credentialsPath =  config('services.fcm_xo_app.credentialsPath');
+			$this->project_id =  config('services.fcm_xo_app.project_id');		
+		}
+		
+		if($server_key == 'dashboard'){
+			$this->credentialsPath =  config('services.fcm_xo_dashboard.credentialsPath');
+			$this->project_id =  config('services.fcm_xo_dashboard.project_id');		
+		}
+		Log::debug('user_fcm_token '. $user_fcm_token);
+		Log::debug('-----');
+		Log::debug('title'. $title);
+		Log::debug('-----');
+		Log::debug('body'. $body);
+		Log::debug('-----');
+		Log::debug('server_key'. $server_key);
+		Log::debug('-----');
+		Log::debug('credentialsPath'. $this->credentialsPath);
+		Log::debug('-----');
+		Log::debug('project_id'. $this->project_id);
+		Log::debug('-----');
+		
         $credentials = new ServiceAccountCredentials('https://www.googleapis.com/auth/firebase.messaging',$this->credentialsPath);
         $authToken = $credentials->fetchAuthToken()['access_token'];
         $url = "https://fcm.googleapis.com/v1/projects/{$this->project_id}/messages:send";
@@ -33,6 +55,7 @@ trait FirebaseNotificationTrait
                 'data' => [
                     'type' => $type,
                     'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
+					'details' => $details
                 ],
                 'notification' => [
                     'title' => $title ,

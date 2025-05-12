@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
 use App\Models\Size;
-use App\Services\SizeService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -14,10 +13,7 @@ class SizeController extends Controller
 {
 
 
-    public function __construct(
-        protected  SizeService $sizeService
-    ) {
-       
+    public function __construct() {  
     }
 
     /**
@@ -58,33 +54,7 @@ class SizeController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Size  $Size
-     * @return \Illuminate\Http\Response
-     */
-    public function show()
-    {
-        try {
-            $size_id = request('size_id');
-            $size = Size::findOrFail($size_id);
-
-          
-
-            return response()->success(
-                $size,
-                Response::HTTP_FOUND
-            );
-        } catch (Exception $e) {
-            return response()->error(
-                $e->getMessage(),
-                Response::HTTP_NOT_FOUND
-            );
-        }
-    }
-
-    public function store(Request $request)
+    public function store(Request $request)//si
     {
         try {
             $validate = Validator::make(
@@ -129,88 +99,5 @@ class SizeController extends Controller
                 Response::HTTP_OK
             );
         }
-    }
-
-
-    public function update(Request $request)
-    {
-        try {
-            $size_id = request('size_id');
-            $validate = Validator::make(
-                $request->all(),
-                [
-                    'name' => 'unique:sizes|max:255',
-                    'hex_code' => 'unique:sizes|max:255',
-                    'sku_code' => 'unique:sizes|max:255',
-                    'type'     => 'string'
-                ]
-            );
-
-            if ($validate->fails()) {
-                return response()->error(
-                    $validate->errors(),
-                    Response::HTTP_OK
-                );
-            }
-
-            $size_data = $validate->validated();
-
-            $size = Size::findOrFail($size_id);
-
-        
-
-            $size->update($size_data);
-
-            return response()->success(
-                $size,
-                Response::HTTP_CREATED
-            );
-        } catch (Exception $th) {
-            return response()->error(
-                $th->getMessage(),
-                Response::HTTP_OK
-            );
-        }
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Comment  $comment
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy()
-    {
-        try {
-            $size_id = request('size_id');
-            $size = Size::findOrFail($size_id);
-
-           /* if (!$size) {
-                throw new Exception('Size not found');
-            }*/
-
-            $size->delete();
-
-            return response()->success(
-                'Size deleted successfully',
-                Response::HTTP_OK
-            );
-        } catch (Exception $th) {
-            return response()->error(
-                $th->getMessage(),
-                Response::HTTP_OK
-            );
-        }
-    }
-
-
-    public function search(){
-
-       $searched_size =  $this->sizeService->searchSize(request('search'));
-
-        return response()->success($searched_size,Response::HTTP_CREATED);
-
-
-        
     }
 }

@@ -9,47 +9,48 @@ Route::group([
     'prefix' => '/dashboard/orders',
     'as' => 'dashboard.orders.'
 ], function () {
-    Route::get('', [AdminOrderController::class, 'index'])->name('index');
-    Route::get('inventories/chart', [AdminOrderController::class, 'inventoriesChart'])->name('inventories.charts');
-    Route::get('counts', [AdminOrderController::class, 'counts'])->name('counts');
-    Route::get('show', [AdminOrderController::class, 'show'])->name('show');
-    Route::get('order-details', [AdminOrderController::class, 'showOrderDetails']);
-    Route::get('show/items', [AdminOrderController::class, 'showItems'])->name('show.items');
-    Route::post('store', [AdminOrderController::class, 'store'])->name('store');
-    Route::post('update', [AdminOrderController::class, 'update'])->name('update');
-    Route::post('delete', [AdminOrderController::class, 'destroy'])->name('delete');
-    Route::delete('', [AdminOrderController::class, 'forceDelete'])->name('force.delete');
-    Route::get('warehouse-admin-orders',[AdminOrderController::class, 'OrdersWarehouseAdmin']);
-    Route::get('open-order-items',[AdminOrderController::class, 'openOrderDetails']);
-    Route::get('sub-order-items',[AdminOrderController::class, 'subOrderDetails']);  
-    Route::get('get-order-cards',[AdminOrderController::class, 'cards']);
-    Route::post('ready-to-deliver',[AdminOrderController::class, 'readyToDeliver']);
-    Route::post('send-sub-order',[AdminOrderController::class, 'sendSubOrder']);
-    Route::post('confirm-receive-sub',[AdminOrderController::class, 'confirmReceiveSub']);
+    //Route::get('', [AdminOrderController::class, 'index']);
+    Route::get('inventories/chart', [AdminOrderController::class, 'inventoriesChart']);//si
+    //Route::get('counts', [AdminOrderController::class, 'counts']);
+    //Route::get('show', [AdminOrderController::class, 'show']);
+    Route::get('order-details', [AdminOrderController::class, 'showOrderDetails']);//si
+	Route::get('export', [AdminOrderController::class, 'export'])->middleware('CheckIfEmployee');//si
+    Route::get('show/items', [AdminOrderController::class, 'showItems']);
+    Route::post('store', [AdminOrderController::class, 'store']);
+    Route::post('update', [AdminOrderController::class, 'update']);
+    Route::post('delete', [AdminOrderController::class, 'destroy']);
+    Route::delete('', [AdminOrderController::class, 'forceDelete']);
+    Route::get('warehouse-admin-orders',[AdminOrderController::class, 'OrdersWarehouseAdmin']);//si
+    Route::get('open-order-items',[AdminOrderController::class, 'openOrderDetails']);//si
+    Route::get('sub-order-items',[AdminOrderController::class, 'subOrderDetails']); //si 
+    Route::get('get-order-cards',[AdminOrderController::class, 'cards']);//si
+    Route::post('ready-to-deliver',[AdminOrderController::class, 'readyToDeliver']);//si
+    Route::post('send-sub-order',[AdminOrderController::class, 'sendSubOrder']);//si
+    Route::post('confirm-receive-sub',[AdminOrderController::class, 'confirmReceiveSub']);//si
 	Route::post('refund-user',[AdminOrderController::class, 'refundPayment']);
-    Route::get('invoice',[AdminOrderController::class, 'getInvoice']);
-	Route::get('shipping-details',[AdminOrderController::class, 'shippingInfo']);
+    Route::get('invoice',[AdminOrderController::class, 'getInvoice']);//si
+	Route::get('shipping-details',[AdminOrderController::class, 'shippingInfo']);//si
 
 });
 
 Route::group([
     'prefix' => '/v1/orders',
     'as' => 'orders.',
-    //'middleware' => 'check.sanctum.token'
+    'middleware' => 'auth'
 ], function () {
 
-    Route::get('pay', [UserOrderController::class, 'pay'])->name('pay');
-    Route::get('', [UserOrderController::class, 'index'])->name('index');
-    Route::get('show', [UserOrderController::class, 'show'])->name('show');
-    Route::post('store', [UserOrderController::class, 'store'])->name('store');
-    Route::post('update', [UserOrderController::class, 'update'])->name('update');
-    Route::post('delete', [UserOrderController::class, 'destroy'])->name('delete');
-    Route::delete('', [UserOrderController::class, 'forceDelete'])->name('force.delete');
-    Route::get('dates',[UserOrderController::class,'dates']);
-    Route::post('check-available',[UserOrderController::class,'checkAvailable']);
-    Route::post('check-available-in-city',[UserOrderController::class,'checkAvailableInCity']);
-    Route::post('order-price',[UserOrderController::class,'getPrice']);
-    Route::post('cancel-order',[UserOrderController::class, 'cancelOrder']);
+    Route::get('pay', [UserOrderController::class, 'pay']);
+    Route::get('', [UserOrderController::class, 'index']);//si
+    Route::get('show', [UserOrderController::class, 'show']);
+    Route::post('store', [UserOrderController::class, 'store']);//si
+    Route::post('update', [UserOrderController::class, 'update']);
+    Route::post('delete', [UserOrderController::class, 'destroy']);
+    Route::delete('', [UserOrderController::class, 'forceDelete']);
+    Route::get('dates',[UserOrderController::class,'dates']);//si
+    Route::post('check-available',[UserOrderController::class,'checkAvailable']);//si
+    Route::post('check-available-in-city',[UserOrderController::class,'checkAvailableInCity']);//si
+    Route::post('order-price',[UserOrderController::class,'getPrice']);//si
+    Route::post('cancel-order',[UserOrderController::class, 'cancelOrder']);//si
 
 
 });

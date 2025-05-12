@@ -67,7 +67,7 @@ class ProductTranslatedResource extends JsonResource
 
 
 
-            $discount_amount = (
+            $discount_amount = floor(
                 (($pricing->value ?? null) * ($discount['percentage'] ?? null))
                 / 100);
             $new_price = ($pricing->value ?? null) - $discount_amount;

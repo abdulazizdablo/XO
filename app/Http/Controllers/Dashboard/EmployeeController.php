@@ -8,7 +8,7 @@ use App\Models\FcmToken;
 use App\Models\Notification;
 use App\Services\EmployeeService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use Validator;
 use InvalidArgumentException;
 use Illuminate\Support\Facades\Crypt;
 use Symfony\Component\HttpFoundation\Response;
@@ -230,6 +230,11 @@ class EmployeeController extends Controller
     public function logout(Request $request){
  
         try {
+			
+			$tokens = FcmToken::where([['fcm_token',$request->fcm_token],['employee_id',auth('api-employees')->user()->id]])->get();
+			foreach($tokens as $token){
+				$token->delete();	
+			}
             auth('api-employees')->user()->currentAccessToken()->delete();
             return response()->success(
                 'Logged out',
@@ -316,14 +321,14 @@ $devlevry_boy = Employee::findOrFail($request->employee_id)->createToken();
             $validate = Validator::make(
                 $request->all(),
                 [
-                    'employee.email' => 'required|email|max:255',
-                    'employee.password' => 'required|string|max:255',
+                    'employee.email' => 'required|email|max:50|exists:employees,email',
+                    'employee.password' => 'required|string|max:25',
                 ]
             );
 
             if ($validate->fails()) {
                 return response()->error(
-                    $validate->errors(),
+                    $validate->errors()->first(),
                     Response::HTTP_BAD_REQUEST
                 );
             }
@@ -476,6 +481,21 @@ $devlevry_boy = Employee::findOrFail($request->employee_id)->createToken();
             //report($e);
             return response()->json(['message' => $e->getMessage()], 500);
         }
+    }
+	
+	public function deleteNotification(Request $request){
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'id' => 'required|exists:notifications,id',
+            ]
+        );
+
+        if ($validator->fails()) {
+            return response()->json(['message' => 'Wrong notification'], 400);
+        } 
+        
+        Notification::find($request->id)->delete();
     }
 
 }

@@ -35,6 +35,22 @@ return [
         'credentialsPath' => storage_path('app/xo-delivery-firebase-adminsdk.json') ,
         'project_id' => env('XO_DELIVERY_PROJECT_ID'),
 
-    ]
+    ],
+	
+	'fcm_xo_app' => [
+        'credentialsPath' => storage_path('app/xo-project-firebase-adminsdk.json') ,
+        'project_id' => env('XO_APP_PROJECT_ID'),
+
+    ],
+	
+	'fcm_xo_dashboard' => [
+		//'credentialsPath' => storage_path('app/dashboard-xo.json') ,
+		//'project_id' => env('XO_DASHBOARD_PROJECT_ID'),
+		'credentialsPath' => storage_path('app/dashboard.json') ,
+		'project_id' => env('XO_DASHBOARD_PROJECT_ID'),
+
+	],
+	
+	
 
 ];

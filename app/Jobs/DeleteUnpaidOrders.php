@@ -36,7 +36,7 @@ class DeleteUnpaidOrders implements ShouldQueue
     public function handle()
     {
 		// Get all shipments that are not delivered yet and have a date less than now
-		$orders = Order::where([['created_at', '<', now()->subMinutes(3)],['paid',0],['payment_method','!=','cod']])->get();
+		$orders = Order::where([['created_at', '<', now()->subMinutes(7)],['paid',0],['payment_method','!=','cod']])->get();
 		
 		// Loop through each shipment and update the date to the next day
 		foreach ($orders as $order) {
@@ -52,8 +52,8 @@ class DeleteUnpaidOrders implements ShouldQueue
 			
 			$inventory_id = Order::where('id', $order_id)->first()->inventory_id;
 		
-			$product_variations_ids = OrderItem::select(['id', 'product_variation_id', 'quantity', 'to_inventory'])
-				->where('order_id', $order_id)->get();
+			$product_variations_ids = OrderItem::select(['id', 'product_variation_id', 'quantity', 'to_inventory','status'])
+				->where([['order_id', $order_id],['status','new']])->get();
 			
 			foreach ($product_variations_ids as $pv) {
 				

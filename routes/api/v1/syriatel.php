@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\SyriatelCashController;
+use App\Http\Controllers\SyriatelCashTestController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -11,11 +11,10 @@ Route::group(
 		//	'middleware' => ['auth:sanctum']
     ],
     function () {
-        Route::post('get-token', [SyriatelCashController::class, 'getToken'])->name('index');
-        Route::post('payment-request', [SyriatelCashController::class, 'paymentRequest'])->name('index');
-        Route::post('payment-confirmation', [SyriatelCashController::class, 'paymentConfirmation'])->name('index');
-        Route::post('resend-otp', [SyriatelCashController::class, 'resendOTP'])->name('index');
-        Route::post('test', [SyriatelCashController::class, 'test']);
+        Route::post('payment-request', [SyriatelCashTestController::class, 'paymentRequest']);//si
+        Route::post('payment-confirmation', [SyriatelCashTestController::class, 'paymentConfirmation']);//si
+        Route::post('resend-otp', [SyriatelCashTestController::class, 'resendOTP']);//si
+        Route::post('test', [SyriatelCashTestController::class, 'test']); //for development
 
     }
 );

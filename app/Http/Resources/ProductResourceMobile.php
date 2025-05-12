@@ -134,8 +134,11 @@ class ProductResourceMobile extends JsonResource
                     "id" => $item3->id,
                     "product_id" => $item3->product_id,
                     "color_id" => $item3->color_id,
-					"path" => $item3->path,
- //'path' =>  ($this->width && $this->height)? $this->getImageUrl(($this->getPublicIdFromUrl($item3->path)), $this->width + 430, $this->height + 935) : $item3->path,
+					//"path" => $item3->path,
+                    //'path' =>  ($this->width && $this->height)? $this->getImageUrl(($this->getPublicIdFromUrl($item3->path)), $this->width + 430, $this->height + 935) : $item3->path, // this code depends on cdn built in functions
+					'path' => ($this->width && $this->height)
+					? $this->getImageUrlManual($this->getPublicIdFromUrlManual($item3->path), $this->width, $this->height)
+					: $item3->path, //this code because cdn built in functions causes env errors
 
                     "main_photo" => $item3->main_photo,
                 ];
@@ -171,6 +174,19 @@ class ProductResourceMobile extends JsonResource
             ],
         ];
     }
+	
+	private function getPublicIdFromUrlManual($url) //this code because cdn built in codes causes env errors
+	{
+		// استخراج الجزء بين '/v1/' و '?_a='
+		preg_match('/\/v1\/(.+?)\?_a=/', $url, $matches);
+		return $matches[1] ?? null;
+	}
+	
+	private function getImageUrlManual($publicId, $width, $height) //this code because cdn built in codes causes env errors
+	{
+		return "https://res.cloudinary.com/dpuuncbke/image/upload/c_fill,w_{$width},h_{$height}/v1/{$publicId}";
+	}
+
 
     public function additional(array $data)
     {

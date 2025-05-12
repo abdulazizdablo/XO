@@ -23,8 +23,8 @@ class SubCategory extends Model
     protected $fillable = [
         'category_id',
         'name',
-        'photo_url',
-        'thumbnail',
+        //'photo_url',
+        //'thumbnail',
         'valid',
     ];
 

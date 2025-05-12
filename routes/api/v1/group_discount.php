@@ -27,6 +27,5 @@ Route::group([
 ], function () {
     Route::get('', [UserGroupController::class, 'index'])->name('index');
     Route::get('show', [UserGroupController::class, 'show'])->name('show');
-		 Route::get('offer-applied-product', [UserGroupController::class, 'offerAppliedProduct'])->name('show');
-
+    Route::get('offer-applied-product', [UserGroupController::class, 'offerAppliedProduct'])->name('show');
 });

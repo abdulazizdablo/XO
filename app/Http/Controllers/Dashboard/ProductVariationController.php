@@ -7,6 +7,9 @@ use App\Models\ProductVariation;
 use Illuminate\Http\Request;
 use App\Models\Size;
 use App\Models\Color;
+use App\Exports\ProductVariationsExport;
+use Maatwebsite\Excel\Facades\Excel;
+
 
 class ProductVariationController extends Controller
 {
@@ -90,6 +93,11 @@ class ProductVariationController extends Controller
         $productVariation->save();
 
         return $productVariation;
+    }
+	
+	public function export()
+    {
+        return Excel::download(new ProductVariationsExport, 'product_variations.xlsx');
     }
 
     /**

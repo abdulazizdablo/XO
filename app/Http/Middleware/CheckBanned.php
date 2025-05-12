@@ -27,7 +27,9 @@ class CheckBanned
             $banHistory = $user?->histories()->latest()->firstOrFail();
 
             if ($banHistory && Carbon::now()->lessThan($banHistory->end_date)) {
-                $banned_days = $banHistory->start_date->diffInDays($banHistory->end_date);
+				$start_date = Carbon::parse($banHistory->start_date);
+				$end_date = Carbon::parse($banHistory->end_date);				
+                $banned_days = $start_date->diffInDays($end_date);
                 // Auth::logout();
                 auth('sanctum')->user()->currentAccessToken()->delete();
 

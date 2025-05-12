@@ -36,18 +36,10 @@ class OrderItem extends Model implements Auditable
         'promotion_name'
     ];
 
-    public function return_order(){
-        return $this->belongsTo(ReturnOrder::class);
-    }
-
     public function order(){
         return $this->belongsTo(Order::class);
 }   
 
-    public function packages()
-    {
-        return $this->belongsToMany(Package::class,'favourites');
-    }
 
     public function product_variation(){
         return $this->belongsTo(ProductVariation::class);
@@ -58,6 +50,12 @@ class OrderItem extends Model implements Auditable
 		return $this->product_variation->product()->first()->item_no;
 				
 	}
+
+    public function getNameAttribute(){
+		return $this->product_variation->product()->first()->slug;
+				
+	}
+    
     
 
 }

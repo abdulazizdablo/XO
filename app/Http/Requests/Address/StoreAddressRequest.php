@@ -26,19 +26,19 @@ class StoreAddressRequest extends FormRequest
     public function rules()
     {
         return [
-            'address.first_name' => 'sometimes|string|max:255',
-			'address.father_name' => 'nullable|string|max:50',
-            'address.last_name' => 'sometimes|string|max:255',
+            'address.isKadmous' => 'required|boolean',
+            'address.first_name' => 'sometimes|string|max:25',
+            'address.father_name' => ['nullable','string','max:25', 'required_if:address.isKadmous,true'],
+            'address.last_name' => 'sometimes|string|max:25',
             'address.phone' => 'sometimes|string|max:20',
-            'address.city' => 'required_without:address.city_id|string|max:255',
-            'address.city_id' => 'required_without:address.city|integer|exists:cities,id',   
-			'address.branch_id' => ['sometimes','integer','nullable', new IsKadmousRule,'exists:branches,id'],
-			'address.isKadmous' => 'required|boolean',
+            'address.city' => ['required_without:address.city_id','string','max:255'],
+            'address.city_id' => ['required_without:address.city','integer','exists:cities,id'],   
+			'address.branch_id' => ['nullable','integer','exists:branches,id', 'required_if:address.isKadmous,true'],
             'address.neighborhood' => 'nullable|string|max:255',
             'address.street' => 'sometimes|string|max:255',
             'address.another_details' => 'nullable|string|max:255',
             'address.lat_long' => 'sometimes|regex:/^[+-]?\d+\.\d+,[+-]?\d+\.\d+$/',
-            'address.phone_number_two' => 'sometimes|string|max:255'
+            'address.phone_number_two' => 'sometimes|string|max:20'
         ];
     }
 

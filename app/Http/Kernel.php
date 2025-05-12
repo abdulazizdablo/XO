@@ -44,10 +44,15 @@ class Kernel extends HttpKernel
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             'throttle:api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            \App\Http\Middleware\CheckBanned::class,
 			// \App\Http\Middleware\CheckUserToken::class,
 			//'auth:sanctum'
         ],
+		
+        'auth' => [
+
+            \App\Http\Middleware\CheckAuthMiddleware::class
+
+        ]
     ];
 
     /**
@@ -70,9 +75,10 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'Locale' => \App\Http\Middleware\Localization::class,
         'Location' => \App\Http\Middleware\Location::class,
+		'CheckUser' => \App\Http\Middleware\CheckUserToken::class,
+		'CheckIfEmployee' => \App\Http\Middleware\CheckIfEmployee::class,
         'CheckBanned' => \App\Http\Middleware\CheckBanned::class,
         'CheckIsSuperAdmin' => \App\Http\Middleware\CheckIsSuperAdmin::class,
-        'check.sanctum.token' => \App\Http\Middleware\CheckSanctumToken::class,
 		'test-cors' => \App\Http\Middleware\TestCorsMiddleware::class
 		//'auth.sanctum' => 	 \App\Http\Middleware\CheckUserToken::class,
 		

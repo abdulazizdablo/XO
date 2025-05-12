@@ -7,19 +7,22 @@ use Illuminate\Support\Facades\Route;
 Route::group(
     [
         'prefix' => '/dashboard/inventories',
-        'as' => 'dashboard.inventories.'
+        'as' => 'dashboard.inventories.',
+		'middleware' => 'CheckIfEmployee'
     ],
     function () {
-        Route::get('', [InventoryController::class, 'index'])->name('index');
+        Route::get('', [InventoryController::class, 'index']);
         Route::get('products_stock', [InventoryController::class, 'getProductsStock']);
-        Route::get('InventoryCount', [InventoryController::class, 'getInventoryCount'])->name('getInventoryCount');
-        Route::get('search', [InventoryController::class, 'search'])->name('search');
-        Route::get('show', [InventoryController::class, 'show'])->name('show');
-        Route::post('store', [InventoryController::class, 'store'])->name('store');
-        Route::post('update', [InventoryController::class, 'update'])->name('update');
-        Route::post('delete', [InventoryController::class, 'destroy'])->name('delete');
-        Route::delete('', [InventoryController::class, 'forceDelete'])->name('force.delete');
-        Route::post('addToGroup', [InventoryController::class, 'addToGroup'])->name('addToGroup');
-        Route::post('assignToSubCategory', [InventoryController::class, 'assignToSubCategory'])->name('assignToSubCategory');
+        Route::get('InventoryCount', [InventoryController::class, 'getInventoryCount']);//si
+        Route::get('search', [InventoryController::class, 'search']);
+        Route::get('show', [InventoryController::class, 'show']);
+        Route::post('store', [InventoryController::class, 'store']);//si
+        Route::post('update', [InventoryController::class, 'update']);
+        Route::post('update-region', [InventoryController::class, 'update_region']);
+        Route::post('delete', [InventoryController::class, 'destroy']);
+		Route::get('get-regions', [InventoryController::class, 'get_regions'])->withoutMiddleware('CheckIfEmployee');
+        Route::delete('', [InventoryController::class, 'forceDelete']);
+        Route::post('addToGroup', [InventoryController::class, 'addToGroup']);//si
+        Route::post('assignToSubCategory', [InventoryController::class, 'assignToSubCategory']);//si
     }
 );

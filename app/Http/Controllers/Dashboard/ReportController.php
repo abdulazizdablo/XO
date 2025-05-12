@@ -23,7 +23,7 @@ class ReportController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(Request $request)//si
     {
         try {
             $filter_data = $request->only([
@@ -47,10 +47,6 @@ class ReportController extends Controller
                 Response::HTTP_NOT_FOUND,
             );
         }
-        
-       
-
-
     }
 
     /**
@@ -69,15 +65,15 @@ class ReportController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request) //si
     {
         try {
-         $employee = auth('api-employees')->user();
-       // $employee = Employee::find(1);
-        if(!$employee){
-            throw new Exception('Employee does not exist');
-        }
-        
+            $employee = auth('api-employees')->user();
+
+            if (!$employee) {
+                throw new Exception('Employee does not exist');
+            }
+
             $validated = Validator::make(
                 $request->all(),
                 [
@@ -92,7 +88,6 @@ class ReportController extends Controller
                     Response::HTTP_UNPROCESSABLE_ENTITY
                 );
             }
-
 
             $report = $this->reportService->createReport($request, $employee);
 
@@ -111,7 +106,8 @@ class ReportController extends Controller
     }
 
 
-    public function getCards(){
+    public function getCards() //si
+    {
         try {
             $cards = $this->reportService->getEmployeeReportCards();
             return response()->success($cards, Response::HTTP_OK);
@@ -126,7 +122,7 @@ class ReportController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show()
+    public function show() //si
     {
         try {
             $report = $this->reportService->getReport();
@@ -139,7 +135,8 @@ class ReportController extends Controller
         }
     }
 
-    public function replyToReport(){
+    public function replyToReport()//si
+    {
         try {
             $reply = $this->reportService->replyToReport();
             return response()->success($reply, Response::HTTP_OK);

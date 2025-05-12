@@ -32,7 +32,7 @@ class GroupOfferService
     public function getGroupOfferProducts($filter_data)
     {
         $offers_products = Group::where('type', 'offer')
-            ->select('id', 'name', 'tag', 'image_path')
+            ->select('id', 'name', 'expired', 'image_path')
             ->valid()
             ->with([
                 'products' => function ($query) {

@@ -26,6 +26,7 @@ class StockLevel extends Model implements Auditable
         'max_stock_level',
         'current_stock_level',
         'on_hold',
+		'shipment_hold',
         'target_date',
         'sold_quantity',
         'status',

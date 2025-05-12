@@ -8,7 +8,6 @@ use App\Models\Branch;
 use App\Models\Coupon;
 use App\Models\Employee;
 use App\Models\Inventory;
-use App\Models\Package;
 use App\Models\User;
 use Carbon\Carbon;
 
@@ -46,7 +45,6 @@ class OrderFactory extends Factory
             'user_id' => User::inRandomOrder()->first()->id,
             'inventory_id' => Inventory::inRandomOrder()->first()->id,
             // 'address_id' => Address::inRandomOrder()->first()->id,
-            'packaging_id' => $this->faker->randomElement([null, Package::inRandomOrder()->first()->id]),
             // 'coupon_id' => $this->faker->randomElement([null, Coupon::inRandomOrder()->first()->id]),
             'branch_id' => $this->faker->randomElement([null, Branch::inRandomOrder()->first()->id]),
             'employee_id' => $this->faker->randomElement([null, Employee::inRandomOrder()->first()->id]),

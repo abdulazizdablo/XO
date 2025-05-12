@@ -11,14 +11,8 @@ Route::group(
         'as' => 'dashboard.sizes.'
     ],
     function () {
-        Route::get('', [AdminSizeController::class, 'index'])->name('index');
-        Route::get('show', [AdminSizeController::class, 'show'])->name('show');
-        Route::post('store', [AdminSizeController::class, 'store'])->name('store');
-        Route::post('update', [AdminSizeController::class, 'update'])->name('update');
-        Route::get('search', [AdminSizeController::class, 'search'])->name('search');
-
-        Route::delete('delete', [AdminSizeController::class, 'destroy'])->name('delete');
-        Route::delete('', [AdminSizeController::class, 'forceDelete'])->name('force.delete');
+        Route::get('', [AdminSizeController::class, 'index']);//si
+        Route::post('store', [AdminSizeController::class, 'store']);//si
     }
 );
 
@@ -28,12 +22,6 @@ Route::group(
         'as' => 'sizes.'
     ],
     function () {
-        Route::get('', [UserSizeController::class, 'index'])->name('index');
-        Route::get('show', [UserSizeController::class, 'show'])->name('show');
-        Route::post('store', [UserSizeController::class, 'store'])->name('store');
-        Route::post('update', [UserSizeController::class, 'update'])->name('update');
-        Route::post('delete', [UserSizeController::class, 'destroy'])->name('delete');
-        Route::get('search', [UserSizeController::class, 'search'])->name('search');
-
+        Route::get('', [UserSizeController::class, 'index']);//si
     }
 );

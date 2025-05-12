@@ -260,11 +260,7 @@ class SyriatelCashController extends Controller
 					// ]);
 
 				} else if ($request->validated('order_id')) {
-					Log::debug('order_id: '.$request->validated('order_id'));
-					Log::debug('============================================');
 					$order = Order::findOrFail($request->validated('order_id'));
-					Log::debug('order: '.$order);
-					Log::debug('============================================');
 					
 					if($order->status != 'processing'){
 						return response()->error(['message' => 'Something went wrong'],400);

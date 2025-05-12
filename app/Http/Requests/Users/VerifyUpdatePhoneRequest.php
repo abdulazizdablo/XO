@@ -1,0 +1,24 @@
+<?php
+
+namespace App\Http\Requests\Users;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class ChangePhoneRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return true; // عدّل حسب نظام الصلاحيات إن لزم
+    }
+
+    public function rules(): array
+    {
+        return [
+                'old_phone' => 'required|string|exists:users,phone',
+                'new_phone' => 'required|string|digits:10|unique:users,phone',
+                'verification_code' => 'required|string|digits:4',
+        ];
+    }
+
+
+}

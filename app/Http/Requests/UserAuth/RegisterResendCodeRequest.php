@@ -25,7 +25,6 @@ class RegisterResendCodeRequest extends FormRequest
     public function rules()
     {
         return [
-               // 'user_id' => 'nullable|exists:users,id',
                 'phone' => 'required|exists:users,phone|regex:/^09\\d{8}$/',
         ];
     }

@@ -10,8 +10,8 @@ Route::group(
         'as' => 'v1.exchange.'
     ],
     function () {
-		Route::post('store', [ExchangeController::class, 'store']);
+		Route::post('store', [ExchangeController::class, 'store']);//si
 		Route::post('test', [ExchangeController::class, 'test']);
-		Route::post('check-price-difference', [ExchangeController::class, 'checkPriceDifference']);
+		Route::post('check-price-difference', [ExchangeController::class, 'checkPriceDifference']);//si
     }
 );

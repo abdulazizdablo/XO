@@ -26,7 +26,9 @@ class AssignAcctoEmpRequest extends FormRequest
         
         return [
             'account_id' => 'required|integer|exists:accounts,id',
-            'employee_id' => 'required|exists:employees,id'
+            'employee_id' => 'required|exists:employees,id',
+            'shift_id' => 'sometimes|exists:shifts,id',            
+            'inventory_id' => 'sometimes|exists:inventories,id',
         ];
     }
 }

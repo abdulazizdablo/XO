@@ -10,7 +10,6 @@ Route::group(
         'as' => 'v1.refund.'
     ],
     function () {
-        Route::post('store', [RefundController::class, 'store']);
-        Route::post('test', [RefundController::class, 'test']);
+        Route::post('store', [RefundController::class, 'store']);//si
     }
 );

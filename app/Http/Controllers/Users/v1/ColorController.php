@@ -44,8 +44,8 @@ class ColorController extends Controller
     public function show()
     {
         try {
-            $color_id = request('color_id');
-            $color = $this->colorService->getColor($color_id);
+			
+            $color = $this->colorService->getColor(request('color_id'));
 
             return response()->success(
                 $color,
@@ -61,17 +61,21 @@ class ColorController extends Controller
     public function search()
     {
 
+		
+		try {
         $searched_color =  $this->colorService->searchColor(request('search'));
 
-        $searched_color =  $this->colorService->searchColor(request('search'));
- 
- 
          return response()->success($searched_color,Response::HTTP_CREATED);
  
- 
+		}
+		 catch (InvalidArgumentException $e) {
+            return response()->error(
+                $e->getMessage(),
+                Response::HTTP_NOT_FOUND
+            );
+        }
+		
          
      }
 
-    //     return response()->success($searched_color, Response::HTTP_CREATED);
-    // }
 }

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use LaracraftTech\LaravelDateScopes\DateScopes;
 use OwenIt\Auditing\Contracts\Auditable;
+use App\Models\Scopes\AdjustCreatedAtScope;
 
 class Order extends Model implements Auditable
 {
@@ -58,11 +59,18 @@ class Order extends Model implements Auditable
           'created_at' => 'datetime:Y-m-d H:i:s',
         'updated_at' => 'datetime:Y-m-d H:i:s'
     ];
-
-    public function feedback(){
-        return $this->hasOne(Feedback::class);
+	/*
+	protected static function booted()
+    {
+        static::addGlobalScope(new AdjustCreatedAtScope);
     }
-
+*/
+	
+	 protected function getCreatedAtAttribute()
+    {
+		 return \Carbon\Carbon::parse($this->attributes['created_at'])/*->addHours(3)*/->format('Y-m-d H:i:s');
+    }
+	
     public function user(){
         return $this->belongsTo(User::class);
     }
@@ -100,10 +108,6 @@ class Order extends Model implements Auditable
 
     public function address(){
         return $this->belongsTo(Address::class);
-    }
-
-    public function package(){
-        return $this->belongsTo(Package::class);
     }
 
     public function order_items(){
@@ -165,13 +169,28 @@ class Order extends Model implements Auditable
 
 		foreach ($order_items as $item) {
 			if ($item->status == 'new') {
-				$newSum += $item->original_price;
+				$newSum += $item->price;
+				//$newSum += $item->original_price;
 			} elseif ($item->status == 'return') {
-				$returnSum += $item->original_price;
+				$returnSum += $item->price;
+				//$returnSum += $item->original_price;
 			}
 		}
 		return $newSum - $returnSum + $this->shipping_fee;
 	}
+
+    public function getNewItemsPriceAttribute(){
+        $order_items = $this->order_items;
+        $returnSum = 0;
+
+		foreach ($order_items as $item) {
+			if ($item->status == 'new') {
+				$returnSum += $item->original_price;
+			}
+		}
+
+		return $returnSum;
+    }
 		
 	public function getReturnOrderPriceAttribute(){
 		$order_items = $this->order_items;
@@ -212,7 +231,14 @@ class Order extends Model implements Auditable
         $order->update(['invoice_number' => $invoiceNumber]);
     });
 }
-
+	/*
+	public function getCreatedAtAttribute()
+	{
+		return $this->attributes['created_at'];
+	}
+	*/
+		
+/*
 	public function getTotalPriceAttribute()
 	{
 		if ($this->coupon_id === null) {
@@ -220,7 +246,7 @@ class Order extends Model implements Auditable
 		} else {
 			return $this->attributes['total_price'] - $this->attributes['discounted_by_coupon'];
 		}
-	}
+	}*/
 	
 	 /*public function getPaymentMethodAttribute($value)
     {

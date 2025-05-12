@@ -15,7 +15,7 @@ class UsersExport implements FromCollection, WithHeadings, ShouldAutoSize
     public function collection()
     {
         return User::query()->
-        select("id", "name", "email")->get();
+        select("id", "first_name", "last_name", "email")->get();
     }
 
     /**
@@ -27,7 +27,8 @@ class UsersExport implements FromCollection, WithHeadings, ShouldAutoSize
     {
         return [
             "ID",
-            "Name",
+            "First Name",
+            "Last Name",
             "Email"
         ];
     }

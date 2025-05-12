@@ -3,25 +3,19 @@
 namespace App\Services;
 
 use Illuminate\Support\Str;
-use App\Models\Category;
-use App\Models\Order;
 use App\Models\Product;
+use App\Models\Category;
 use App\Models\Section;
-use App\Models\SubCategory;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Arr;
 use InvalidArgumentException;
-//use App\Traits\CloudinaryTrait;
-use App\Traits\PhotoTrait;
+use App\Traits\CloudinaryTrait;
 use App\Traits\TranslateFields;
 use Exception;
-use Illuminate\Support\Facades\DB;
 
 class SectionService
 {
-    use PhotoTrait, TranslateFields;
+    use CloudinaryTrait, TranslateFields;
 
-    public function getAllSections()
+    public function getAllSections() //si
     {
         $sections = Section::withCount('categories')->get();
 
@@ -31,95 +25,67 @@ class SectionService
 
         return $sections;
     }
-    // getSectionsInfo
 
-    public function getSectionSales()
+    public function comparePopularCategories($categories_id, $section_id = 1, $filter_data, $dateScope) //si
     {
         try {
-            $counts = Section::withCount('orders')->get();
-
-            $totalOrders = $counts->sum('orders_count');
-
-            $percentageCounts = $counts->map(function ($section) use ($totalOrders) {
-                $percentage = ($section->orders_count / $totalOrders) * 100;
-                $section->percentage = $percentage;
-                return $section;
-            });
-
-            return $percentageCounts;
-        } catch (\Exception $e) {
-            throw new Exception($e->getMessage());
-        }
-    }
-
-    public function comparePopularCategories($categories_id, $section_id = 1, $filter_data, $dateScope)
-    {
-           try {
             $date = $filter_data['date'] ?? 0;
 
             $section_id = $section_id ?? 1;
 
-            if(empty($categories_id)){
+            if (empty($categories_id)) {
                 $counts = Category::where('section_id', $section_id)
-                ->select('id', 'section_id', 'name')
-                ->with(
-                    'categoryOrders' , function ($query) use ($date) {
-                        $query->when($date != null, function($query) use ($date){
-                            $query->whereDate('orders.created_at', $date);
-                        });
+                    ->select('id', 'section_id', 'name')
+                    ->with(
+                        'categoryOrders',
+                        function ($query) use ($date) {
+                            $query->when($date != null, function ($query) use ($date) {
+                                $query->whereDate('orders.created_at', $date);
+                            });
+                        }
+                    )->withCount([
+                        'categoryOrders as orders_count'
+                    ])
+
+                    ->orderBy('orders_count', 'desc')
+                    ->take(6)
+                    ->get();
+
+                $total_orders_count = $counts->sum('orders_count');
+
+                $counts = $counts->map(function ($category) use ($total_orders_count) {
+
+                    if ($total_orders_count == 0) {
+                        $category->percentage = 0;
+                    } else {
+                        $category->percentage = $category->orders_count * 100 / $total_orders_count;
                     }
-                )->withCount(['categoryOrders as orders_count'
-                // ,'categoryOrders as percentage' => function ($query) {
-                //     $query->select(DB::raw('COUNT(*) * 100 / (SELECT COUNT(*) FROM orders)'));}
-                    // If you have a condition for orders, you can add it here as well
-                    // Example: $query->where('status', 'completed'); 
-                ])
-                
-                ->orderBy('orders_count', 'desc')
-                ->take(6)
-                ->get();
-
-                  $total_orders_count= $counts->sum('orders_count');
-
-               $counts =$counts->map(function ($category)use($total_orders_count) {
-				   
-				   if($total_orders_count == 0){
-				    $category->percentage = 0;
-				   
-				   }
-				   
-				   else {
-					                           $category->percentage=$category->orders_count*100/$total_orders_count;
-
-				   }
                     return collect($category->toArray())
                         ->only(['id', 'section_id', 'name', 'orders_count', 'percentage'])
                         ->all();
                 });
-            }else{
+            } else {
                 $counts = Category::where('section_id', $section_id)
-                ->whereIn('id', $categories_id)
-                ->select('id', 'section_id', 'name')
-                ->with(
-                    'categoryOrders' , function ($query) use ($date) {
-                        $query->when($date != null, function($query) use ($date){
-                            $query->whereDate('orders.created_at', $date);
-                        });
+                    ->whereIn('id', $categories_id)
+                    ->select('id', 'section_id', 'name')
+                    ->with(
+                        'categoryOrders',
+                        function ($query) use ($date) {
+                            $query->when($date != null, function ($query) use ($date) {
+                                $query->whereDate('orders.created_at', $date);
+                            });
+                        }
+                    )->withCount(['categoryOrders as orders_count'])
+                    ->orderBy('percentage', 'desc')
+                    ->get();
+                $total_orders_count = $counts->sum('orders_count');
+                $counts = $counts->map(function ($category) use ($total_orders_count) {
+                    if ($total_orders_count == 0) {
+                        $category->percentage = 0;
+                    } else {
+                        $category->percentage = $category->orders_count * 100 / $total_orders_count;
                     }
-                )->withCount(['categoryOrders as orders_count'])
-                ->orderBy('percentage', 'desc')
-                ->get();
-                $total_orders_count= $counts->sum('orders_count');
-                $counts =$counts->map(function ($category) use($total_orders_count)  {
-						   if($total_orders_count == 0){
-				    $category->percentage = 0;
-				   
-				   }
-                        else {
-						                    $category->percentage=$category->orders_count*100/$total_orders_count;
 
-						}
-					
                     return collect($category->toArray())
                         ->only(['id', 'section_id', 'name', 'orders_count', 'percentage'])
                         ->all();
@@ -131,169 +97,6 @@ class SectionService
             throw new Exception($e->getMessage());
         }
     }
-
-    protected function applyFilters($query, array $filters)
-    {
-        $appliedFilters = [];
-        foreach ($filters as $attribute => $value) {
-            $column_name = Str::before($attribute, '_');
-            $method = 'filterBy' . Str::studly($column_name);
-            if (method_exists($this, $method) && isset($value) && !in_array($column_name, $appliedFilters)) {
-                $query = $this->{$method}($query, $filters);
-                $appliedFilters[] = $column_name;
-            }
-        }
-
-        return $query;
-    }
-
-    public function getSectionsInfo()
-    {
-        $sections = Section::get();
-
-        if (!$sections) {
-            throw new InvalidArgumentException('There Is No Sections Available');
-        }
-        return $sections;
-        // return $sections->getFields($section_fields);
-
-    }
-
-    public function getSection($section_id)
-    {
-        $section = Section::findOrFail($section_id);
-
-     
-
-        $section_fields = [
-            'name',
-            'photo_url',
-
-        ];
-        return $section->getFields($section_fields);
-    }
-
-    public function createSection(array $data): Section
-    {
-        $nameKeys = Arr::where(array_keys($data), function ($key) {
-            return strpos($key, 'name_') === 0;
-        });
-
-        $names = [];
-        foreach ($nameKeys as $key) {
-            $locale = str_replace('name_', '', $key);
-            $names[$locale] = $data[$key];
-        }
-
-        $photo_path = $this->saveImage($data['image'], 'photo', 'images/sections');
-        // $thumbnail_path = $this->saveThumbnail($file,'photo','images/products/thumbnails');
-
-        $section = Section::create([
-            'name' => $names,
-            'type' => $data['type'],
-            'photo_url' => $photo_path,
-            'thumbnail' => 'dasd',
-        ]);
-
-        // $section->categries()->saveMany([$categories]);
-
-        if (!$section) {
-            throw new InvalidArgumentException('Something Wrong Happend');
-        }
-
-        return $section;
-    }
-
-    public function updateSection(array $data, $section_id): Section
-    {
-        $section = Section::findOrFail($section_id);
-        $section->update([
-            'name' => $data['name'],
-            'type' => $data['type'],
-        ]);
-
-    
-
-        return $section;
-    }
-
-    public function show($section_id): Section
-    {
-        $section = Section::find($section_id);
-
-        if (!$section) {
-            throw new InvalidArgumentException('Section not found');
-        }
-
-        return $section;
-    }
-
-    public function delete(int $section_id): void
-    {
-        $section = Section::find($section_id);
-
-        if (!$section) {
-            throw new InvalidArgumentException('Section not found');
-        }
-
-        $section->delete();
-    }
-
-    public function forceDelete(int $section_id): void
-    {
-        $section = Section::find($section_id);
-
-        if (!$section) {
-            throw new InvalidArgumentException('Section not found');
-        }
-
-        $section->forceDelete();
-    }
-
-    public function getSectionChart($section_id)
-    {
-        $counts = Category::withCount('orders')->get();
-
-
-        return $counts;
-    }
-
-    public function getSectionCategories($section_id)
-    {
-        $categories = Section::where('id', $section_id)
-            ->select('id', 'name')
-            ->with(['categories' => function ($query) {
-                $query->select('id', 'section_id', 'name', 'slug','photo_url','thumbnail')
-                    ->withCount('subCategories');
-            }])
-            ->withCount('categories')
-            ->get();
-
-        if (!$categories) {
-            throw new InvalidArgumentException('There Is No Categories Available');
-        }
-
-        return $categories;
-    }
-    
-    public function getSectionCategoriesSubs($section_id)
-    {
-        $categories = Section::where('id', $section_id)
-            ->select('id', 'name')
-            ->with(['categories' => function ($query) {
-                $query->select('id', 'section_id', 'name', 'slug')
-                    ->withCount('subCategories');
-            }])
-            ->with('categories.subCategories')
-            ->get();
-
-        if (!$categories) {
-            throw new InvalidArgumentException('There Is No Categories Available');
-        }
-
-        return $categories;
-    }
-    
     
     public function getSubCategoriesProducts($sub_category_id, $date, $date_min, $date_max, $visible,$key)
     {
@@ -331,11 +134,49 @@ class SectionService
 
         return $products;
     }
-    public function getSectionsCategories($section_id)
+
+
+
+    public function getSectionsInfo() //si
     {
-        $categories = Category::where('section_id', $section_id)->withCount('subCategories')
-            ->valid()
-            ->paginate(10);
+        $sections = Section::get();
+
+        if (!$sections) {
+            throw new InvalidArgumentException('There Is No Sections Available');
+        }
+        return $sections;
+        // return $sections->getFields($section_fields);
+
+    }
+
+    public function getSectionCategories($section_id) //si
+    {
+        $categories = Section::where('id', $section_id)
+            ->select('id', 'name')
+            ->with(['categories' => function ($query) {
+                $query->where('valid',1)->select('id', 'section_id', 'name', 'slug','valid', 'photo_url', 'thumbnail')
+                    ->withCount('subCategories');
+            }])
+            ->withCount('categories')
+            ->get();
+
+        if (!$categories) {
+            throw new InvalidArgumentException('There Is No Categories Available');
+        }
+
+        return $categories;
+    }
+	
+	public function getDashSectionCategories($section_id) //si
+    {
+        $categories = Section::where('id', $section_id)
+            ->select('id', 'name')
+            ->with(['categories' => function ($query) {
+                $query/*->where('valid',1)*/->select('id', 'section_id', 'name', 'slug','valid', 'photo_url', 'thumbnail')
+                    ->withCount('subCategories');
+            }])
+            ->withCount('categories')
+            ->get();
 
         if (!$categories) {
             throw new InvalidArgumentException('There Is No Categories Available');
@@ -344,9 +185,43 @@ class SectionService
         return $categories;
     }
 
-    public function getSectionCategoriesInfo($section_id)
+    public function getSectionCategoriesSubs($section_id)//si
     {
-        $categories = Category::where('section_id', $section_id)->get();
+        /*$categories = Section::where('id', $section_id)
+            ->select('id', 'name')
+            ->with(['categories' => function ($query) {
+                $query->select('id', 'section_id', 'name', 'slug')
+                    ->withCount('subCategories');
+            }])
+            ->with('categories.subCategories')
+            ->get();
+		*/
+		
+/*$categories = Section::where('id', $section_id)
+    ->select('id', 'name')
+    ->with(['categories' => function ($query) {
+        $query->select('id', 'section_id', 'name', 'slug')
+            ->where('valid', 1) // Filter categories where valid = 1
+            ->withCount('subCategories')
+            ->with(['subCategories']); // Load subcategories in the same query
+    }])
+    ->get();
+		*/
+		
+		$categories = Section::where('id', $section_id)
+    ->select('id', 'name')
+    ->with(['categories' => function ($query) {
+        $query->select('id', 'section_id', 'name', 'slug')
+            ->where('valid', 1) // Filter categories where valid = 1
+            ->withCount('subCategories')
+            ->with(['subCategories' => function ($subQuery) {
+                $subQuery->where('valid', 1); // Filter subcategories where valid = 1
+            }]);
+    }])
+    ->get();
+
+
+
 
         if (!$categories) {
             throw new InvalidArgumentException('There Is No Categories Available');
@@ -355,8 +230,20 @@ class SectionService
         return $categories;
     }
 
+    public function getSectionCategoriesInfo($section_id) //si
+    {
+        $categories = Category::valid()->where('section_id', $section_id)->get();
 
-    public function getSectionSubCategories($section_id)
+		
+        if (!$categories) {
+            throw new InvalidArgumentException('There Is No Categories Available');
+        }
+
+        return $categories;
+    }
+
+
+    public function getSectionSubCategories($section_id) //si
     {
         $sub_categories = Section::where('id', $section_id)->with('subCategories')->first()->subCategories;
         // return $sub_categories;
@@ -365,19 +252,12 @@ class SectionService
             throw new InvalidArgumentException('There Is No Sub Categories Available');
         }
 
+
         $sub_category_fields = [
             'id',
             'name',
         ];
 
         return $this->getTranslatedFields($sub_categories, $sub_category_fields);
-    }
-
-    protected function filterByDate($query, $filter_data)
-    {
-        $date_min = $filter_data['date_from'] ?? 0;
-        $date_max = $filter_data['date_to'] ?? date('Y-m-d');
-
-        return $query->whereHas('created_at', [$date_min, $date_max]);
     }
 }

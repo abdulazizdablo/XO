@@ -6,13 +6,13 @@ use App\Models\Package;
 use Illuminate\Database\Eloquent\Collection;
 use InvalidArgumentException;
 use Illuminate\Support\Arr;
-use App\Traits\PhotoTrait;
+use App\Traits\CloudinaryTrait;
 //use App\Traits\CloudinaryTrait;
 use App\Traits\TranslateFields;
 
 class PackageService
 {
-    use PhotoTrait , TranslateFields;
+    use CloudinaryTrait , TranslateFields;
 
     public function getAllPackages()
     {

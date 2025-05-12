@@ -3,25 +3,18 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
-use App\Models\Category;
 use App\Models\Coupon;
 use App\Models\Group;
 use App\Models\Version;
-use App\Services\FeedbackService;
 use App\Services\HomeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Response;
 use App\Models\User;
-use Illuminate\Support\Facades\Notification;
-use App\Notifications\CustomNotification;
 use Carbon\Carbon;
-use Kutia\Larafirebase\Messages\FirebaseMessage;
 use App\Traits\FirebaseNotificationTrait;
 use Illuminate\Support\Facades\DB;
 use App\Jobs\SendFirebaseNotificationJob;
-use Illuminate\Support\Facades\Http;
 
 class HomeController extends Controller
 {
@@ -35,7 +28,6 @@ class HomeController extends Controller
 
 
     public function __construct(
-        protected FeedbackService $feedbackService,
         protected HomeService $homeService
     ) {
     
@@ -117,15 +109,16 @@ class HomeController extends Controller
 											 'value' => 'cod',
 											 'hide_on_gift'=> 1,
 											 'number' => 0,
-											 'photo_url' => 'https://api.xo-textile.sy/public/images/payments/cod.jpg' ]],
+											 'photo_url' => 'https://res.cloudinary.com/dpuuncbke/image/upload/q_auto/f_auto/v1/photo/cod?_a=E' ]],
 				'delivery_methods' => ['xo_dedlivery' =>['name' => 'xo_dedlivery' ]],
-				'xo_contact_number' => '+964987654321' ,
+				'xo_contact_number' => '+971508764491' ,
 				'base_url' => 'https://xo-textile.blue-tech.ae/api/'
 			]);	
 		}
 
 		return response()->json($response['country']);
 	}
+	
     // public function __construct()
     // {
     // $this->middleware('auth');
@@ -185,20 +178,6 @@ class HomeController extends Controller
 
 	}
 	
-    public function index()
-    {
-        return view('home');
-    }
-
-    public function allFeedback()
-    {
-        $feedback = $this->feedbackService->getAllFeedbacks();
-
-        return response()->success(
-            $feedback,
-            Response::HTTP_OK
-        );
-    }
 
     public function bestSeller()
     {
@@ -366,21 +345,27 @@ class HomeController extends Controller
 				SendFirebaseNotificationJob::dispatch(
 					$fcmToken,
 					$title,
-					$title,
 					$body,
-					$body,
-					'notification_page',
+					'Notification',
 					'flutter_app',
-					null // Priority is optional; pass null if not needed
 				);
 			}
+			 $t = json_encode([
+                    "ar" => $title,
+                    "en" => $title
+                ]);
+			
+			 $b = json_encode([
+                    "ar" => $body,
+                    "en" => $body
+                ]);
 
 			// Prepare data for batch insertion
 			$notificationData[] = [
 				'user_id' => $user->id,
-				'type' => "order_page",
-				'title' => $title,
-				'body' => $body
+				'type' => "Notification",
+				'title' =>  $t ,
+				'body' =>  $b
 			];
 		}
 
@@ -469,21 +454,28 @@ public function sendGroupNotification(Request $request)
 			SendFirebaseNotificationJob::dispatch(
 				$fcmToken,
 				$title,
-				$title,
 				$body,
-				$body,
-				'notification_page',
+				'Notification',
 				'flutter_app',
-				null // Priority is optional; pass null if not needed
 			);
 		}
+		
+		$t = json_encode([
+                    "ar" => $title,
+                    "en" => $title
+                ]);
+			
+		$b = json_encode([
+                    "ar" => $body,
+                    "en" => $body
+                ]);
 
 		// Prepare data for batch insertion
 		$notificationData[] = [
 			'user_id' => $user->id,
-			'type' => "order_page",
-			'title' => $title,
-			'body' => $body
+			'type' => "Notification",
+			'title' => $t,
+			'body' => $b
 		];
 	}
 
@@ -545,21 +537,28 @@ public function sendCouponNotification(Request $request)
 				SendFirebaseNotificationJob::dispatch(
 					$fcmToken,
 					$title,
-					$title,
 					$body,
-					$body,
-					'notification_page',
+					'Notification',
 					'flutter_app',
-					null // Priority is optional; pass null if not needed
 				);
 			}
+			
+			$t = json_encode([
+                    "ar" => $title,
+                    "en" => $title
+                ]);
+			
+			 $b = json_encode([
+                    "ar" => $body,
+                    "en" => $body
+                ]);
 
 			// Prepare data for batch insertion
 			$notificationData[] = [
 				'user_id' => $user->id,
-				'type' => "order_page",
-				'title' => $title,
-				'body' => $body
+				'type' => "Notification",
+				'title' => $t,
+				'body' => $b
 			];
 		}
 

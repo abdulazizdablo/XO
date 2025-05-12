@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\Setting;
 use App\Models\Transaction;
 use App\Traits\FirebaseNotificationTrait;
+use App\Exports\OrdersExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class OrderController extends Controller
 {
@@ -77,8 +79,8 @@ class OrderController extends Controller
     {
         try {
             $employee = auth('api-employees')->user();
-            //$employee = Employee::find(3);
-            if (!$employee) {
+            
+			if (!$employee) {
                 return response()->error('Unauthorized', 403);
             }
 
@@ -138,7 +140,6 @@ class OrderController extends Controller
     {
         try {
             $employee = auth('api-employees')->user();
-            //$employee = Employee::find(1);
             if (!$employee) {
                 throw new Exception('Employee does not exist');
             }
@@ -161,7 +162,6 @@ class OrderController extends Controller
     {
         try {
             $employee = auth('api-employees')->user();
-            //$employee = Employee::find(4);
             if (!$employee) {
                 throw new Exception('Employee does not exist');
             }
@@ -184,7 +184,6 @@ class OrderController extends Controller
     {
         try {
             $employee = auth('api-employees')->user();
-            //$employee = Employee::find(3);
             if (!$employee) {
                 throw new Exception('Employee does not exist');
             }
@@ -279,7 +278,6 @@ class OrderController extends Controller
 
         try {
             $employee = auth('api-employees')->user();
-            //$employee = Employee::find(3);
             if (!$employee) {
                 throw new Exception('Employee does not exist');
             }
@@ -306,7 +304,6 @@ class OrderController extends Controller
 
         try {
             $employee = auth('api-employees')->user();
-            //$employee = Employee::find(3);
             if (!$employee) {
                 throw new Exception('Employee does not exist');
             }
@@ -383,7 +380,6 @@ class OrderController extends Controller
     {
         try {
             $employee = auth('api-employees')->user();
-            //$employee = Employee::find(3);
             if (!$employee) {
                 throw new Exception('Employee does not exist');
             }
@@ -451,7 +447,6 @@ class OrderController extends Controller
     {
         try {
 			$employee = auth('api-employees')->user();
-            //$employee = Employee::find(3);
             if (!$employee) {
                 throw new Exception('Employee does not exist');
             }
@@ -492,7 +487,8 @@ class OrderController extends Controller
     {
         try {
             $order_id = request('order_id');
-            $order = $this->orderService->getInvoice($order_id);
+            $invoice_number = request('invoice_number');
+            $order = $this->orderService->getInvoice($order_id, $invoice_number);
 
             return response()->success(
                 $order,
@@ -527,6 +523,15 @@ class OrderController extends Controller
     public function update(Request $request, Order $order)
     {
         //
+    }
+	
+	public function export()
+    {
+        /*return Product::select("id", "name", "description")
+        ->with(['product_variations' => function ($query) {
+            $query->select('id');
+        }])->get();*/
+        return Excel::download(new OrdersExport, 'orders.xlsx');
     }
 
     /**

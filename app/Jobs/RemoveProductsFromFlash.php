@@ -26,18 +26,16 @@ class RemoveProductsFromFlash implements ShouldQueue
     public function handle()
     {
         try {
-            // Get expired discounts
-            $expiredDiscountIds = Discount::where('end_date', '<', now())->pluck('id');
+			
+			//Discount::where('valid', 0)->update(['valid' => 1]);
 
-            // Update expired discounts and related groups
-            Discount::whereIn('id', $expiredDiscountIds)->update(['valid' => 0]);
-            Group::whereIn('id', Discount::whereIn('id', $expiredDiscountIds)->pluck('group_id'))->update(['valid' => 0]);
+            // Get expired discounts
+            $expiredDiscountIds = Discount::where('end_date', '<', now())->orWhere('valid',0)->pluck('id')->toArray();
 
             // Get products associated with expired discounts
             $productsToUpdate = Product::whereHas('discount', function ($query) use ($expiredDiscountIds) {
                 $query->whereIn('id', $expiredDiscountIds);
             })->with('product_variations')->get();
-
             // Update products and product variations
             foreach ($productsToUpdate as $product) {
                 $product->update([
@@ -48,7 +46,11 @@ class RemoveProductsFromFlash implements ShouldQueue
 
                 $product->product_variations()->update(['group_id' => null]);
             }
-
+			
+            // Update expired discounts and related groups
+            Discount::whereIn('id', $expiredDiscountIds)->update(['valid' => 0]);
+            Group::whereIn('id', Discount::whereIn('id', $expiredDiscountIds)->pluck('group_id'))->update(['valid' => 0]);
+			
         } catch (\Exception $e) {
             Log::error("Error in RemoveProductsFromFlash job: " . $e->getMessage());
             throw $e;

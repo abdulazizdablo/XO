@@ -27,7 +27,7 @@ class ReportController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(Request $request)//si
     {
         try {
             $filter_data = $request->only([
@@ -69,14 +69,15 @@ class ReportController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function createOrderReport(Request $request)
+    public function createOrderReport(Request $request)//si
     {
         try {
         $user = auth('sanctum')->user();
-        // $user = User::find(1);
+
         if(!$user){
             throw new Exception('User does not exist');
         }
+        
         $order_id = request('order_id');
         $order = Order::findOrFail($order_id);
      
@@ -115,13 +116,14 @@ class ReportController extends Controller
         }
     }
 
-    public function createGeneralReport(Request $request)
+    public function createGeneralReport(Request $request)//si
     {
         $user = auth('sanctum')->user();
-        //$user = User::find(1);
+
         if(!$user){
             throw new Exception('User does not exist');
         }
+
         try {
             $validated = Validator::make(
                 $request->all(),
@@ -130,6 +132,7 @@ class ReportController extends Controller
                     'type' => 'sometimes| max:255'
                 ]
             );
+            
             if ($validated->fails()) {
                 return response()->error(
                     $validated->errors(),
@@ -154,7 +157,7 @@ class ReportController extends Controller
     }
 
 
-    public function getCards()
+    public function getCards()//si
     {
         try {
             $cards = $this->reportService->getUserReportCards();
@@ -170,7 +173,7 @@ class ReportController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show()
+    public function show()//si
     {
         try {
             $report = $this->reportService->getUserReport();
@@ -183,7 +186,7 @@ class ReportController extends Controller
         }
     }
 
-    public function replyToReport()
+    public function replyToReport()//si
     {
         try {
             $reply = $this->reportService->replyToReport();

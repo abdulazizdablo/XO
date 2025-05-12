@@ -7,7 +7,8 @@ use App\Http\Controllers\Dashboard\HomeController as AdminHomeController;
 Route::group(
     [
         'prefix' => '/dashboard/catalouge',
-        'as' => 'dashboard.catalouge.'
+        'as' => 'dashboard.catalouge.',
+		'middleware' => 'CheckIfEmployee'
     ],
     function () {
         // Route::get('', [AdminAddressController::class, 'index'])->name('index');

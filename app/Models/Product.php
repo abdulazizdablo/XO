@@ -7,16 +7,12 @@ use Spatie\Translatable\HasTranslations;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx\Comments;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 use App\Traits\TranslateFields;
-use Illuminate\Database\Eloquent\Builder;
 use Umutphp\LaravelModelRecommendation\InteractWithRecommendation;
 use Umutphp\LaravelModelRecommendation\HasRecommendation;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
-// use \Znck\Eloquent\Traits\BelongsToThrough;
 
 class Product extends Model implements InteractWithRecommendation
 {
@@ -53,7 +49,8 @@ class Product extends Model implements InteractWithRecommendation
         'fit',
         'style',
         'season',
-		'isNew'
+		'isNew',
+		'displayed_at'
     ];
 
     protected $casts = [
@@ -89,7 +86,7 @@ class Product extends Model implements InteractWithRecommendation
     {
         return $this->belongsTo(Discount::class)->where('valid',1);
     }
-
+	
     public function product_variations()
     {
         return $this->hasMany(ProductVariation::class);
@@ -189,11 +186,6 @@ class Product extends Model implements InteractWithRecommendation
             ->value('rating_avg');
     }
 
-    public function transfer_item()
-    {
-        return $this->belongsTo(TransferItem::class);
-    }
-
     public function commentedUsers()
     {
         return $this->belongsToMany(User::class, 'comments');
@@ -246,17 +238,6 @@ class Product extends Model implements InteractWithRecommendation
     {
         return $this->belongsToMany(User::class, 'notifies');
     }
-
-    public function comments()
-    {
-        return $this->hasMany(Comments::class);
-    }
-
-    public function variations()
-    {
-        return $this->belongsToMany(Variation::class, 'product_variations');
-    }
-
 
     public function scopeNameContains($query, $keyword, $lang = 'en')
     {

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Account;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateAccountRequest extends FormRequest
 {
@@ -23,13 +24,17 @@ class UpdateAccountRequest extends FormRequest
      */
     public function rules()
     {
-        
+        $account_id = $this->input('account_id');
+
         return [
-         
-                'account_id' => 'required|integer|exists:accounts,id',
-                'email' => 'sometimes|email|unique:accounts,email',
-                'password' => 'sometimes|string|confirmed|regex:/^[^\s]+$/'
-          
+
+            'account_id' => 'required|integer|exists:accounts,id',
+            'email' => [
+                'sometimes',
+                'email',
+                Rule::unique('accounts', 'email')->ignore($account_id)
+            ],
         ];
     }
+
 }

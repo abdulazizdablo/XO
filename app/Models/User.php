@@ -80,16 +80,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Review::class);
     }
 
-    public function feedbacks()
-    {
-        return $this->hasMany(Feedback::class);
-    }
-
-    public function complaints()
-    {
-        return $this->hasMany(UserComplaint::class);
-    }
-    
     public function favourites_products()
     {
         return $this->belongsToMany(Product::class, 'favourites');
@@ -146,11 +136,6 @@ class User extends Authenticatable implements MustVerifyEmail
 		
 	}
 
-    public function return_orders()
-    {
-        return $this->hasMany(ReturnOrder::class);
-    }
-    
 	public function orders()
     {
         return $this->hasMany(Order::class)->where(function ($query) {
@@ -207,15 +192,6 @@ class User extends Authenticatable implements MustVerifyEmail
 	public function shipment()
     {
         return $this->hasOne(Shipment::class);
-    }
-	
-
-    public function sendPasswordResetNotification($token)
-    {
-
-        $url = "http://www.XO.ae/reset-password?token=$token";
-
-        $this->notify(new ResetPasswordNotification($url));
     }
 	
 }

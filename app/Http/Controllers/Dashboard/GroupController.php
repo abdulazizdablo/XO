@@ -10,6 +10,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Response;
+use App\Http\Requests\Groups\StoreOfferRequest;
+use App\Http\Requests\Groups\StoreDiscountRequest;
+
 
 class GroupController extends Controller
 {
@@ -137,11 +140,17 @@ class GroupController extends Controller
     public function detachProduct(Request $request)
     {
         try {
-            $group_id = request('group_id');
-             $slug = request('slug');
+			$delete_many = false;
 			
-            $group = $this->groupService->detachProduct($group_id, $slug);
-
+            $group_id = request('group_id');
+            $slug = request('slug');
+			$delete_many = request('delete_many');
+			$products_ids = request('products_ids');
+			if($delete_many){
+				$group = $this->groupService->detachManyProducts($group_id, $products_ids);	
+			}else{
+				$group = $this->groupService->detachProduct($group_id, $slug);	
+			}
             return response()->success(
                 $group,
                 Response::HTTP_CREATED
@@ -153,36 +162,11 @@ class GroupController extends Controller
             );
         }
     }
-    public function storeOffer(Request $request)
+    public function storeOffer(StoreOfferRequest $request)
     {
         try {
-            // $products = request('products');
-            // $discounts = request('discounts');
-            $validate = Validator::make(
-                $request->all(),
-                [
-                    'group_name_ar' => 'required|string|max:255',
-                    'group_name_en' => 'required|string|max:255',
-                    'start_date' => 'required_if:group_type,discount|max:255',
-                    'promotion_name' => 'required|string|max:255',
-                    'end_date' => 'required_if:group_type,discount|max:255',
-                    'percentage' => 'required_if:group_type,discount|integer|lte:90',
-                    'promotion_type' => 'required_if:group_type,offer|in:BOGO,BOGH,BTGO',
-                    'number_of_items' => 'required_if:group_type,offer|max:255',
-                    'image' => 'required|image|mimes:jpeg,bmp,png,webp,svg',
-                ]
-            );
 
-            if ($validate->fails()) {
-                return response()->error(
-                    $validate->errors(),
-        422
-                );
-            }
-
-         
-
-            $group = $this->groupService->storeOffer( $validate->validated());
+            $group = $this->groupService->storeOffer( $request->validated());
 
             return response()->success(
                 $group,
@@ -197,33 +181,10 @@ class GroupController extends Controller
     }
 
 
-    public function storeDiscount(Request $request)
+    public function storeDiscount(StoreDiscountRequest $request)
     {
         try {
-            // $products = request('products');
-            // $discounts = request('discounts');
-            $validate = Validator::make(
-                $request->all(),
-                [
-                    'group_name_ar' => 'required|string|max:255',
-                    'group_name_en' => 'required|string|max:255',
-                    'promotion_name' => 'required|string|max:255',
-                    'start_date' => 'required_if:group_type,discount|max:255',
-                    'end_date' => 'required_if:group_type,discount|max:255',
-                    'percentage' => 'required_if:group_type,discount|integer|lte:90',
-                    'promotion_type' => 'required_if:group_type,discount|in:flash_sales',
-                    'image' => 'required|image|mimes:jpeg,bmp,png,webp,svg',
-                ]
-            );
-
-            if ($validate->fails()) {
-                return response()->error(
-                    $validate->errors(),
-                 422
-                );
-            }
-
-            $group = $this->groupService->storeDiscount($validate->validated());
+            $group = $this->groupService->storeDiscount($request->validated());
 
             return response()->success(
                 $group,
@@ -263,7 +224,7 @@ class GroupController extends Controller
                 [
                     "count" => $count,
                     "info" => [
-                        'info' => $group->select('id', 'name', 'type', 'valid', 'tag', 'image_thumbnail'),
+                        'info' => $group->select('id', 'name', 'type', 'valid', 'expired', 'image_thumbnail'),
                         'promotion' => $promotion,
                     ],
                     "items" => '$items'
@@ -362,12 +323,11 @@ class GroupController extends Controller
     public function update_valid(Request $request)
     {
         try {
-            $group_slug = request('group_slug');
-
             $validate = Validator::make(
                 $request->all(),
                 [
-                    'valid' => ''
+                    'valid' => 'required|in:0,1',
+					'group_slug' => 'required|exists:groups,slug'
                 ],
 
             );
@@ -380,6 +340,8 @@ class GroupController extends Controller
                   422
                 );
             }
+            
+			$group_slug = request('group_slug');
 
             $validated_data = $validate->validated();
 
@@ -393,8 +355,8 @@ class GroupController extends Controller
                 // OR HTTP_NO_CONTENT
             );
         } catch (Exception $th) {
-            return response()->error(
-                $th->getMessage(),
+            return response()->error([
+                'message'=>$th->getMessage()],
                 Response::HTTP_BAD_REQUEST
             );
         }
@@ -407,25 +369,25 @@ class GroupController extends Controller
      * @param  \App\Models\Group  $group
      * @return \Illuminate\Http\Response
      */
-    public function destroy()
-    {
-        try {
-            $group_slug = request('group_slug');
-            $group = $this->groupService->delete($group_slug);
+	public function destroy()
+	{   
+		try{
+			$group_id = request('group_id');
+			$group = $this->groupService->delete($group_id);
 
-            return response()->success(
-                [
-                    'message' => 'Group deleted successfully' , $group
-                ],
-                Response::HTTP_OK
-            );
+			return response()->success(
+				[
+					'message' => 'Group deleted successfully' , $group
+				],
+				Response::HTTP_OK
+			);
         } catch (Exception $th) {
-            return response()->error(
-                $th->getMessage(),
-                Response::HTTP_BAD_REQUEST
+            return response()->error([
+                'message'=>$th->getMessage()],
+                400
             );
         }
-    }
+	}
 
     /**
      * Remove the specified resource from storage.

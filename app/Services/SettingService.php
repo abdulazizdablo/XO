@@ -5,12 +5,12 @@ namespace App\Services;
 use App\Models\Setting;
 use App\Models\AppSetting;
 use InvalidArgumentException;
-use App\Traits\PhotoTrait;
+use App\Traits\CloudinaryTrait;
 use App\Traits\TranslateFields;
 
 class SettingService
 {
-    use PhotoTrait, TranslateFields;
+    use CloudinaryTrait, TranslateFields;
 
     public function updateNotifications($key, $ar, $en)
     {

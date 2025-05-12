@@ -94,7 +94,7 @@ class ProductCollection extends ResourceCollection
                 if ($has_discount) {
                     $has_discount = true;
                     $discount = $item->discount;
-                    $discount_amount = (
+                    $discount_amount = floor(
                         (($pricing->value ?? null) * $discount['percentage'])
                         / 100);
                     $new_price = ($pricing->value ?? null) - $discount_amount;
@@ -187,7 +187,7 @@ class ProductCollection extends ResourceCollection
                     'sizes' => $sizes->map(function ($item2) {
                         return [
                             "id" => $item2->id,
-                            "value" => $item2->value,
+                            "value" => $item2->getTranslation('value', 'en'),
                             "type" => $item2->type,
 
                         ];

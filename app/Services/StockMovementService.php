@@ -172,19 +172,6 @@ class StockMovementService
         $stock_movement->forceDelete();
     }
 
-
-    // public function searchProduct($shipment_name)
-    // {
-
-    //     $shipment_name = request('shipment_name');
-    //         $shipment= StockMovement::where('shipment_name', 'like', '%' . $shipment_name . '%')->get();
-    //         if (!$shipment) {
-    //             throw new InvalidArgumentException('Shipment not found');
-    //         }
-    //     return  $shipment ;
-
-    // }
-
     protected function applySort($query, array $sort_data)
     {
         // return $query->orderBy($sort_data['sort_key'], $sort_data['sort_value']);

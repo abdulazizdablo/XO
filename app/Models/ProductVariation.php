@@ -134,5 +134,16 @@ class ProductVariation extends Model
 		}
 	}*/
 	
+	public function getIsAvailableAttribute()
+	{
+		$product = $this->getRelationValue('product');
+		if($product){
+					return $product->available;
+		}
+		else{
+			return false;
+		}
+	}
+	
 	
 }

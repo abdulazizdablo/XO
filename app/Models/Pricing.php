@@ -23,7 +23,16 @@ class Pricing extends Model
         'value',
         'valid',
     ];
-
+	
+	
+  /*  protected static function booted()
+    {
+        static::retrieved(function ($price) {
+            // Transform attributes here
+            $price->value = (int)$price->value ;
+         //   $app_translate->destination_language_content = json_decode($app_translate->destination_language_content, true);  // Example: Convert `name` to an integer
+        });
+    }*/
     // Changed after attatching pricing with product
     public function product(){
         return $this->belongsTo(Product::class);

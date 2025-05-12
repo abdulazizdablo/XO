@@ -12,6 +12,8 @@ use App\Jobs\RemoveProductsFromFlash;
 use App\Jobs\DeleteUnpaidOrders;
 use App\Jobs\DeleteUnpaidGiftCards;
 use App\Jobs\DeactivateCoupon;
+use App\Jobs\UpdateTransactionFailed;
+
 
 class Kernel extends ConsoleKernel
 {
@@ -23,14 +25,16 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-		$schedule->job(new UpdateStockLevelStatusJob)->everyMinute();
-		$schedule->job(new PushUndeliveredOrdersJob)->everyMinute();
-		$schedule->job(new SetOrderClosedJob)->everyMinute();
+	    $schedule->job(new UpdateStockLevelStatusJob)->dailyAt("00:00");
+		$schedule->job(new PushUndeliveredOrdersJob)->dailyAt("00:00");
+		$schedule->job(new SetOrderClosedJob)->dailyAt("00:00");
 		$schedule->job(new SetNewProducts)->everyMinute();
 		$schedule->job(new RemoveProductsFromFlash)->everyMinute();
 		$schedule->job(new DeleteUnpaidOrders)->everyMinute();
 		$schedule->job(new DeleteUnpaidGiftCards)->everyMinute();
 		$schedule->job(new DeactivateCoupon)->everyMinute();
+	    $schedule->job(new UpdateTransactionFailed)->everyMinute();
+
 		
        // $schedule->command('adjust-product-movement')->everyMinute();
     }

@@ -11,6 +11,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Validator;
 use App\Services\EmployeeService;
 use App\Services\AdminService;
+use App\Models\Order;
+use App\Enums\Roles;
 
 
 
@@ -42,8 +44,7 @@ class DeliveryController extends Controller
         $sort_data = request(['sort_key','sort_value']);
         $inventory_id = request(['inventory_id']);
         try{
-            // $employee = auth('api-employees')->user();
-            $employee = Employee::find(5);
+            $employee = auth('api-employees')->user();
             if(!$employee){
                 throw new Exception('Employee not found');
             }
@@ -63,8 +64,7 @@ class DeliveryController extends Controller
     
     public function getDeliveries(Request $request){
         try {
-            // $employee = auth('api-employees')->user();
-            $employee = Employee::findOrFail(5);
+            $employee = auth('api-employees')->user();
 
             if(!$employee){
                 return response()->error('Unauthorized',403);
@@ -127,7 +127,6 @@ class DeliveryController extends Controller
     {
         try{
              $employee = auth('api-employees')->user();
-    //        $employee = Employee::find(5);
             if(!$employee){
                 throw new Exception('Employee not found');
             }
@@ -177,8 +176,7 @@ class DeliveryController extends Controller
 	
 	public function getDeliveryBoy(){
         try {
-            // $employee = auth('api-employees')->user();
-            $employee = Employee::findOrFail(5);
+            $employee = auth('api-employees')->user();
 
             if(!$employee){
                 return response()->error('Unauthorized',403);
@@ -200,8 +198,7 @@ class DeliveryController extends Controller
 	
     public function getOrderBoys(){
         try {
-            // $employee = auth('api-employees')->user();
-            $employee = Employee::findOrFail(5);
+            $employee = auth('api-employees')->user();
 
             if(!$employee){
                 return response()->error('Unauthorized',403);
@@ -223,8 +220,7 @@ class DeliveryController extends Controller
     
     public function getOrdersByBoy(){
         try {
-            // $employee = auth('api-employees')->user();
-            $employee = Employee::findOrFail(5);
+            $employee = auth('api-employees')->user();
 
             if(!$employee){
                 return response()->error('Unauthorized',403);
@@ -246,7 +242,6 @@ class DeliveryController extends Controller
 	public function customNotification(){
         try {
             $employee = auth('api-employees')->user();
-            // $employee = Employee::find(1);
 
             if(!$employee){
                 return response()->error('Unauthorized',403);
@@ -271,7 +266,6 @@ class DeliveryController extends Controller
     public function assignOrder(){
         try {
             $employee = auth('api-employees')->user();
-            // $employee = Employee::find(1);
 
             if(!$employee){
                 return response()->error('Unauthorized',403);
@@ -295,13 +289,18 @@ class DeliveryController extends Controller
     public function startDelivery(){
         try {
             $employee = auth('api-employees')->user();
-            // $employee = Employee::find(1);
 
             if(!$employee){
                 return response()->error('Unauthorized',403);
             } 
             $order_id = request('order_id');
+					/*    $order = Order::findOrFail($order_id)->load('user');
+            $user = $order->user;
+            $fcm_tokens = $user->fcm_tokens()->pluck('fcm_token')->toArray();
+									dd( $employee->hasRole(Roles::DELIVERY_BOY) && $order->employee_id == $employee->id && $order->status == 'processing');*/
             $order = $this->deliveryService->startDelivery($order_id, $employee);
+			
+	
 
             return response()->success(
                 $order,

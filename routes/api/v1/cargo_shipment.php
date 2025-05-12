@@ -8,29 +8,17 @@ Route::group(
     [
         'prefix' => '/dashboard/cargo-shipment/',
         'as' => 'dashboard.cargo-shipment.',
+		'middleware' => 'CheckIfEmployee'
     ],
     function () {
    
-        Route::get('index', [CargoShipmentController::class, 'index']);
-        Route::get('show', [CargoShipmentController::class, 'show']);
-        Route::delete('delete', [CargoShipmentController::class, 'delete']);
-        Route::post('send-cargo-shipment', [CargoShipmentPVController::class, 'send']);
-        Route::get('shipment-details-items', [CargoShipmentController::class, 'shipmentDetailsItems']);
-        Route::get('shipment-details', [CargoShipmentController::class, 'requestAndShipmentDetails']);
-        Route::get('request-details', [CargoShipmentController::class, 'requestDetails']);
-        Route::get('request-details-items', [CargoShipmentController::class, 'requestDetailsItems']);
-        Route::post('shipment-arrived', [CargoShipmentPVController::class, 'shiped']);
-        Route::get('all-inventories', [CargoShipmentController::class, 'getAllInventories']);
-        Route::get('all-shipments', [CargoShipmentController::class, 'getAllShipments']);
-        Route::post('confirm-assigned-shipment', [CargoShipmentController::class, 'confirmShipment']);
-        Route::post('cargo-shipment-arrived', [CargoShipmentController::class, 'arrived']);
-
-
-
-
-
-
-
-
+        Route::post('send-cargo-shipment', [CargoShipmentPVController::class, 'send']);//si
+        Route::get('shipment-details-items', [CargoShipmentController::class, 'shipmentDetailsItems']);//si
+        Route::get('shipment-details', [CargoShipmentController::class, 'requestAndShipmentDetails']);//si
+        Route::get('request-details', [CargoShipmentController::class, 'requestDetails']);//si
+        Route::get('request-details-items', [CargoShipmentController::class, 'requestDetailsItems']);//si
+        Route::post('shipment-arrived', [CargoShipmentPVController::class, 'shiped']);//si
+        Route::get('all-shipments', [CargoShipmentController::class, 'getAllShipments']);//si
+        Route::post('confirm-assigned-shipment', [CargoShipmentController::class, 'confirmShipment']);//si
     }
 );

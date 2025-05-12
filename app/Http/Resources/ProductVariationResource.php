@@ -106,7 +106,7 @@ class ProductVariationResource extends JsonResource
             'product_variation_id' => $this->id,
             'color_id' => $this->color_id,
             'quantity' =>StockLevel::where('product_variation_id', $this->id)->max('current_stock_level') ?? 0,
-            'max_quantity_per_order' => 10,
+            'max_quantity_per_order' => ((StockLevel::where('product_variation_id', $this->id)->max('current_stock_level')) > 10 )? 10: (int)(StockLevel::where('product_variation_id', $this->id)->max('current_stock_level')),
             'status' => $status,
             'sku_code' => $this->sku_code,
             'offer' => [
@@ -117,7 +117,7 @@ class ProductVariationResource extends JsonResource
 				'sku_code' => (int)$this->size->sku_code,
                 'notify' => $is_notified,
                 'can_be_notified' =>  !$has_stock_levels||$quantity == 0,
-                'value' => $this->size->value,
+                'value' => $this->size->getTranslation('value', 'en'),
             ],
 
         ];

@@ -114,15 +114,15 @@ class InventoryService
 
             if ($inventory_id == null) {
 
-                $total_product = ProductVariation::count();
-
+                //$total_product = ProductVariation::count();
+				$total_product = StockLevel::/*distinct('product_variation_id')->*/count();
                 // $stock = StockLevel::all();
                 // $modelName1 = \App\Models\StockLevel::class;
                 $fast_movement = StockLevel::where('status', 'fast-movement')->count();
 
                 $slow_movement = StockLevel::where('status', 'slow-movement')->count();
 
-                $out_of_stock = StockLevel::where('status', 'out-of-stock')->count();
+                $out_of_stock = StockLevel::whereNotIn('status', ['fast-movement','slow-movement'])->count();
             } elseif (($inventory_id != null)) {
 				
 				
@@ -200,33 +200,6 @@ class InventoryService
         $stock_levels = $inventory->stock_levels;
 		  
 		return  $product_variations = ProductVariation::find($stock_levels->pluck('product_variation_id'));
-		  
-		  
-		  
-		  
-		 $product_varitaions =  $stock_levels->map(function($item){
-		  
-		  
-		  });
-		  
-
-        $product_variaitons = ProductVariation::select('id', 'name')->with([
-            'product_variations:id,product_id,sku_code,visible',
-            'pricing:id,product_id,value,location',
-            'stocks' => function ($item) use ($inventory_id) {
-                $item->when(isset ($inventory_id), function ($item2) use ($inventory_id) {
-                    $item2->where('inventory_id', $inventory_id);
-                });
-            }
-        ])->whereHas('product_variations', function ($q) use ($stock_levels) {
-            $q->whereIn('id', $stock_levels->pluck('product_variation_id'));
-        })->get();
-
-        if (!empty($filter_data)) {
-            $products = $this->applyFilters($products, $filter_data);
-        }
-
-        return $products;
     }
 
 	

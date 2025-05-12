@@ -7,7 +7,7 @@ use App\Models\Section;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
 use InvalidArgumentException;
-use App\Traits\PhotoTrait;
+use App\Traits\CloudinaryTrait;
 use App\Traits\TranslateFields;
 use Illuminate\Support\Carbon;
 use App\Services\AramexServices;

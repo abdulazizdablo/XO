@@ -529,8 +529,6 @@ class SubCategoryFactory extends Factory
                 ])
             ],
 
-            'photo_url' => $this->faker->imageUrl($width = 640, $height = 480, $category = null, $randomize = true, $word = null,),
-            'thumbnail' => $this->faker->imageUrl,
             'valid' => 1,
         ];
     }

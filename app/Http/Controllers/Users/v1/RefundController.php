@@ -7,13 +7,11 @@ use App\Http\Requests\Refund\StoreRefundRequest;
 use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\Setting;
-use Illuminate\Http\Request;
 use App\Models\Refund;
 use App\Services\RefundService;
 use App\Models\OrderItem;
 use App\Models\Invoice;
 use App\Models\Transaction;
-use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -25,15 +23,6 @@ class RefundController extends Controller
 
     public function __construct(protected RefundService $refundService)
     {
-    }
-
-
-    public function index()
-    {
-
-        $refunds = Refund::paginate(8);
-
-        return response()->success($refunds, 200);
     }
 	
 	public function store(StoreRefundRequest $request){
@@ -74,6 +63,10 @@ class RefundController extends Controller
 				}
 			}
 		
+			if($date < now()){
+				$date = Carbon::now()->format('Y-m-d');				
+			}
+			
             $time = $validatedData['time'];
             //$total_refund = 0;
             $order = Order::findOrFail($order_id);
@@ -129,7 +122,7 @@ class RefundController extends Controller
 
 					if($order->coupon_id != null){//if original order uses coupon then we have to return only the paid price
 						$percentage = Coupon::findOrFail($order->coupon_id)->percentage;	
-						$discounted = ($returned_price_for_item * $percentage)/100;
+						$discounted = floor(($returned_price_for_item * $percentage)/100);
 						$discounted_returned_price_for_item = $returned_price_for_item -  $discounted;
 						$old_price += $discounted_returned_price_for_item * $item_data['quantity'];
 					}else{
@@ -200,7 +193,8 @@ class RefundController extends Controller
 				'amount' => -($old_price - $fees) ,
 				'status' => 'pending',
 				'payment_method'=> $order->payment_method,
-				'operation_type' =>'refund_order'
+				'transaction_source' => $order->transaction->transaction_source,
+				'operation_type' =>'refund'
 			]);
 			
 			$ids = array_column($request->order_items, 'id');
@@ -232,10 +226,21 @@ class RefundController extends Controller
 
             ]);
 			//$order->update(['status'=>'returned']);
-
+            $invoice_data = Order::select(['id', 'invoice_number','total_quantity', 'payment_method', 'total_price', 'paid_by_user','discounted_by_coupon','price_without_offers','covered_by_gift_card','gift_id', 'shipping_fee', 'total_quantity', 'created_at'])
+				->where('id', $return_order->id)
+				->firstOrFail()
+				->load([
+					'order_items:id,product_variation_id,order_id,quantity,original_price,price',
+					'order_items.product_variation:id,product_id', // Load the product variation
+					'order_items.product_variation.product:id,name', // Load the product through the product variation
+					'shipment:id,order_id,type,receiver_first_name,date,time,receiver_last_name,city,street,neighborhood',
+					'invoice:id,order_id,gift_card_balance,coupon_percenage'
+				]);
+			$invoice_data->discounted_price = $return_order->total_price - $return_order->discounted_by_coupon - $order->covered_by_gift_card;
+			
             DB::commit();        
 		//	return response()->json('Order refunded successfully');
-			return response()->success(['message' => trans('refund.order_refunded',[],$request->header('Content-Language'))] ,200);
+			return response()->success(['message' => trans('refund.order_refunded',[],$request->header('Content-Language')), 'invoice_data' => $invoice_data]  ,200);
 		}catch (\Exception $e) {
 
             DB::rollBack();

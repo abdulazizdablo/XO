@@ -34,27 +34,7 @@ public function calculateRefundPrice($order_items)
             $inventory_id = $item->order()->first()->inventory()->first()->id;
 
            $order_id = $item->order_id;
-          /*  if (!$item->product_variation()->first()->stock_levels()->where('inventory_id',  $inventory_id)->first()) {
-
-                SubOrder::create([
-
-                    //'order_id' => $order_id ,
-                   // 'product_variation_id' => $item->product_variation_id,
-                   // 'from_inventory' =>   4,
-                   // 'to_inventory' =>  $inventory_id
-                   
-                   'order_item_id' => $item->id,
-                   
-                   'packaging_id' => 1
-
-
-
-                ]);
-            } else*/
-            
-            
-            
-            
+                    
             if ( $item->order()->first()->inventory()->first()->id !== $item->product_variation()->first()->stock_levels()->where('product_variation_id', $item->product_variation_id)->first());
 
 
@@ -78,38 +58,9 @@ else{*/
 
 
             $order_item_in_inventory_stock->save();   
-//}
-
-
         });
 
-
-
-
-
-        /* if ($item->suborder()->exists()) {
-
-                $order_item_in_inventory = $item->suborder()->inventory()->stock_levels()->where('product_varation_id', $item->product_variation_id)->first();
-
-
-                $order_item_in_inventory->currnet_stock_level += $item->quantity;
-
-
-
-                $order_item_in_inventory->save();
-            } else {
-
-
-                $order_item_in_inventory = $item->order()->inventory()->stock_levels()->where('product_varation_id', $item->product_variation_id)->first();
-
-
-                $order_item_in_inventory->currnet_stock_level += $item->quantity;
-                $order_item_in_inventory->save();
-            }
-        */
     }
-
-
 
     public function checkExchangeProducts($order_items){
         // check the order items are met the conditions

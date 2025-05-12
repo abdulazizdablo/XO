@@ -114,7 +114,7 @@ class ProductResourceCopy extends JsonResource
             $has_discount = true;
             $discount = $this->discount;
             if ($discount != null) {
-                $discount_amount = (
+                $discount_amount = floor(
                     (($pricing->value ?? null) * $discount['percentage'])
                     / 100);
                 $new_price = ($pricing->value ?? null) - $discount_amount;

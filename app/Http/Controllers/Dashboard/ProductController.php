@@ -9,10 +9,10 @@ use App\Imports\ProductsImport;
 use App\Models\Group;
 use App\Models\Product;
 use App\Models\Photo;
+use App\Http\Requests\Product\StoreProductPhotosRequest;
 use App\Services\FavouriteService;
 use App\Services\ProductService;
 use App\Services\ProductVariationService;
-use App\Services\VariationService;
 use Exception;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
@@ -21,6 +21,7 @@ use InvalidArgumentException;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\Response;
 use App\Enums\Roles;
+use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
@@ -28,10 +29,8 @@ class ProductController extends Controller
     public function __construct(
         protected ProductService $productService,
         protected ProductVariationService $productVariationService,
-        protected VariationService $variationService,
         protected FavouriteService $favouriteService
-    ) {
-    }
+    ) {}
 
     /**
      * Display a listing of the resource.
@@ -57,7 +56,7 @@ class ProductController extends Controller
         ], Response::HTTP_OK);
     }
 
-    public function attach(Request $request)
+    public function attach(Request $request) //si
     {
         // return Group::where('id',request('group_id'))->first();
         $validate = Validator::make(
@@ -65,7 +64,8 @@ class ProductController extends Controller
             [
                 'product_variation_ids' => 'required_without:product_id|array|exists:product_variations,id',
                 'product_id' => 'required_without:product_variation_ids|exists:products,id',
-                'group_id' => 'required|exists:groups,id'
+                //'group_id' => 'required|exists:groups,id'
+                'group_id' => 'nullable|exists:groups,id'//null if we want to delete product from group
             ]
         );
         if ($validate->fails()) {
@@ -81,10 +81,9 @@ class ProductController extends Controller
             $product_id = $validated_data['product_id'] ?? null;
             $product_variation_ids = $validated_data['product_variation_ids'] ?? null;
             $group_id = $validated_data['group_id'];
-            if (isset($product_id)){
-               $process = $this->productService->attachProductToGroup($product_id, $group_id);
-            }
-            elseif(isset($product_variation_ids)){
+            if (isset($product_id)) {
+                $process = $this->productService->attachProductToGroup($product_id, $group_id);
+            } elseif (isset($product_variation_ids)) {
                 $process = $this->productService->attachProductVariationToGroup($product_variation_ids, $group_id);
             }
             return response()->success(
@@ -117,18 +116,8 @@ class ProductController extends Controller
             );
         }
     }
-	
-	
-	
-	public function addToTopProducts(Request $request){
-	
-		$top_product_id = $request->product_id;
-		
-		if(true){}
-		
-	
-	}
-	
+
+
 
     public function showConuts(Request $request)
     {
@@ -148,7 +137,7 @@ class ProductController extends Controller
         }
     }
 
-    public function showOrders(Request $request)
+    public function showOrders(Request $request) //si
     {
         try {
             $product_id = request('product_id');
@@ -169,13 +158,13 @@ class ProductController extends Controller
         }
     }
 
-    public function showStocks(Request $request)
+    public function showStocks(Request $request) //si
     {
         try {
             $product_id = request('product_id');
             $inventory_id = request('inventory_id');
             $filter_data = $request->only(['status']);
-            $product = $this->productService->getStocks($product_id, $inventory_id ,$filter_data);
+            $product = $this->productService->getStocks($product_id, $inventory_id, $filter_data);
 
             return response()->success(
                 $product,
@@ -189,7 +178,7 @@ class ProductController extends Controller
         }
     }
 
-    public function changeVisibility()
+    public function changeVisibility() //si
     {
         try {
 
@@ -229,12 +218,12 @@ class ProductController extends Controller
         }
     }
 
-    public function getFavourite()
+    public function getFavourite() //si
     {
         try {
             // $user_id = Auth::id();
             $user = auth('sanctum')->user();
-           // $user_id  = $user->id;
+            // $user_id  = $user->id;
             $favorite_products = $this->productService->getAllFavouriteProducts($user->id);
 
             return response()->success(
@@ -254,29 +243,29 @@ class ProductController extends Controller
 
     public function export()
     {
-        // return Product::select("id", "name", "description")
-        // ->with(['product_variations' => function ($query) {
-        //     $query->select('id');
-        // }])->get();
+        /*return Product::select("id", "name", "description")
+        ->with(['product_variations' => function ($query) {
+            $query->select('id');
+        }])->get();*/
         return Excel::download(new ProductsExport, 'products.xlsx');
     }
 
     public function import(Request $request)
-    {
+    {/*
         try {
-            // return response()->json([
-            //     "dasa"
-            // ]);
+            return response()->json([
+                "dasa"
+            ]);
 
-            // $file = $request->file('file');
+            $file = $request->file('file');
             Excel::import(new ProductsImport(), $request->file('products'));
         } catch (\Throwable $th) {
             return response()->error($th->getMessage(), 500);
         }
-        // return Product::select("id", "name", "description")
-        // ->with(['product_variations' => function ($query) {
-        //     $query->select('id');
-        // }])->get();
+        return Product::select("id", "name", "description")
+        ->with(['product_variations' => function ($query) {
+            $query->select('id');
+        }])->get();
     return Excel::download($excel, $fileName)->header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 		
 		   if ($response instanceof Response) {
@@ -284,7 +273,7 @@ class ProductController extends Controller
             $response->header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         }
 
-        return $response;
+        return $response;*/
     }
 
     public function searchProduct()
@@ -328,7 +317,7 @@ class ProductController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request) //si
     {
         try {
             $validated = Validator::make(
@@ -362,22 +351,11 @@ class ProductController extends Controller
                     "pricing.*.price_name" => 'required|max:30',
                     "pricing.*.price_currency" => 'required|max:20',
                     "pricing.*.price_location" => 'required|max:20',
-                    // product variations
                     'variations' => 'required|array',
                     'variations.*.size_id' => 'required',
                     'variations.*.size_sku' => 'required',
                     'variations.*.color_id' => 'required',
                     'variations.*.color_sku' => 'required',
-                    // 'variations_sizes' => 'required|array',
-                    // 'variations_sizes.*.id' => 'integer|exists:sizes,id',
-                    // 'variations_colors' => 'required|array',
-                    // 'variations_colors.*.id' => 'integer|exists:colors,id',
-                    //'new_colors' => 'sometimes|array',
-                    //'new_colors.*.name' => 'sometimes|max:100',
-                    //'new_colors.*.hex_code' => 'sometimes|max:100',
-                    //'new_colors.*.sku_code' => 'sometimes|max:100',
-                    // 'new_colors.*.hex_code' => 'sometimes|unique:colors|max:100',
-                    // 'new_colors.*.sku_code' => 'sometimes|unique:colors|max:100',
                 ]
             );
 
@@ -403,28 +381,11 @@ class ProductController extends Controller
 
             $pricings[] = $this->productService->createPrice($pricing_data['pricing'], $product->id);
 
-            // return $pricings;
-
-            if (array_key_exists('new_colors', $validated_data)) {
-                $new_colors = collect($validated_data)->filter(function ($value, $key) {
-                    return Str::startsWith($key, 'new_colors');
-                })->all();
-
-                foreach ($new_colors as $new_colors) {
-                    $colors = $this->productService->createColors($new_colors);
-                }
-            }
-
             $variations_data = collect($validated_data)->filter(function ($value, $key) {
                 return Str::startsWith($key, 'variations');
             });
 
-            // return  $variations_data['variations'];
-
-            // foreach ($variations_data as $variations_item) {
-
             $product_variations[] = $this->productService->createProductVariation($product->id, $product->item_no, $variations_data['variations']);
-            // }
 
             return response()->success(
                 ["product" => $product, "product_variations" => $product_variations],
@@ -438,67 +399,68 @@ class ProductController extends Controller
             );
         }
     }
-	
-	public function deletePhotos(Request $request)
-	{
-	try {
-            $validated = Validator::make(
-                $request->all(),
-                [
-                    // product id
-                    'photo_id' => 'required|exists:photos,id',
-                ]
-            );
-            if ($validated->fails()) {
-                return response()->error(
-                    $validated->errors(),
-                    422
-                );
-            }
-            $validated_data = $validated->validated();
-		$photo = Photo::findOrFail($validated_data['photo_id']);
-		$photo->delete();
-	
-		return response()->success(
-                ["messages" => "the photos has been deleted successfuly"],
-                Response::HTTP_CREATED
-            );
-		
-		
-	} catch (\Throwable $th) {
-            return response()->error(
 
-                $th->getMessage(),
-                Response::HTTP_BAD_REQUEST
-
-            );
-        }
-	}
-    public function storePhotos(Request $request)
+    public function deletePhotos(Request $request)//si
     {
         try {
             $validated = Validator::make(
                 $request->all(),
                 [
-                    // product id
-                    'product_id' => 'required|exists:products,id',
-                    // photos
-                    'photos' => 'required|array',
-                    'photos.*.color_id' => 'required',
-                    'photos.*.main_photo' => 'required',
-                    'photos.*.image' => 'image|max:5000|mimes:jpg,jpeg,bmp,png,webp,svg,dng|dimensions:min_width=600,min_height=600',
-
-
+                    'photo_id' => 'required|exists:photos,id',
                 ]
             );
+
             if ($validated->fails()) {
                 return response()->error(
                     $validated->errors(),
                     422
                 );
             }
+
             $validated_data = $validated->validated();
-            $photos[] = $this->productService->storePhotos($validated_data['product_id'], $validated_data['photos']);
+            $photo = Photo::findOrFail($validated_data['photo_id']);
+            $num = Photo::where([['product_id', $photo->product_id], ['color_id', $photo->color_id]])->count();
+            $photo->forceDelete();
+
+            if ($num == 1) {
+                Photo::create([
+                    'product_id' => $photo->product_id,
+                    'color_id' => $photo->color_id,
+                    'thumbnail' => "https://api.xo-textile.sy/public/images/xo-logo.webp",
+                    'path' => "https://api.xo-textile.sy/public/images/xo-logo.webp",
+                    'main_photo' => 1,
+                ]);
+            }
+
+            return response()->success(
+                ["messages" => "the photos has been deleted successfuly"],
+                Response::HTTP_CREATED
+            );
+        } catch (\Throwable $th) {
+            return response()->error(
+
+                $th->getMessage(),
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+    }
+
+    public function storePhotos(StoreProductPhotosRequest $request)//si
+    {
+        try {
+            $validated_data = $request->validated();
+            $color_id = $validated_data['photos'][0]['color_id'];
+            $product_id = $validated_data['product_id'];
+            $photos = $this->productService->storePhotos($validated_data['product_id'], $validated_data['photos']);
+            
+            if (empty($photos)) {
+                return response()->success(["messages" => "the photos has been added successfuly", "data" =>
+                Photo::where([['color_id', $color_id], ['product_id', $product_id]])->get()], 200);
+            } else {
+                return response()->error(['message' => $photos, "data" =>
+                Photo::where([['color_id', $color_id], ['product_id', $product_id]])->get()], 400);
+            }
+
             return response()->success(
                 ["messages" => "the photos has been added successfuly"],
                 Response::HTTP_CREATED
@@ -512,9 +474,10 @@ class ProductController extends Controller
             );
         }
     }
-	
-	public function updateMainPhoto(Request $request){
-		try {
+
+    public function updateMainPhoto(Request $request)
+    {
+        try {
             $validated = Validator::make(
                 $request->all(),
                 [
@@ -528,20 +491,20 @@ class ProductController extends Controller
             if ($validated->fails()) {
                 return response()->error(
                     $validated->errors(),
-                422
+                    422
                 );
             }
             $validated_data = $validated->validated();
-			$photos = Photo::where([['product_id',$validated_data['product_id']],['color_id',$validated_data['color_id']]])->get();
-			foreach($photos as $photo){
-				$photo->update(['main_photo' => 0]);
-			}
-			
-			$new_main = Photo::where([['product_id',$validated_data['product_id']],['color_id',$validated_data['color_id']],['id',$validated_data['photo_id']]])->first();
-			
-			if($new_main){
-				$new_main->update(['main_photo'=>1]);	
-			}
+            $photos = Photo::where([['product_id', $validated_data['product_id']], ['color_id', $validated_data['color_id']]])->get();
+            foreach ($photos as $photo) {
+                $photo->update(['main_photo' => 0]);
+            }
+
+            $new_main = Photo::where([['product_id', $validated_data['product_id']], ['color_id', $validated_data['color_id']], ['id', $validated_data['photo_id']]])->first();
+
+            if ($new_main) {
+                $new_main->update(['main_photo' => 1]);
+            }
             //$this->productService->updatePhotos($validated_data['product_id'], $validated_data['photos']);
             return response()->success(
                 ["messages" => "the main photo has been updated successfuly"],
@@ -555,31 +518,29 @@ class ProductController extends Controller
 
             );
         }
-	}
+    }
 
-    public function updatePhotos(Request $request)
+    public function updatePhotos(Request $request)//si
     {
         try {
             $validated = Validator::make(
                 $request->all(),
                 [
-                    // product id
                     'product_id' => 'required|exists:products,id',
-                    // photos
                     'photos' => 'required|array',
                     'photos.*.color_id' => 'required',
                     'photos.*.main_photo' => 'required',
-                    'photos.*.image' => 'image|max:1536|mimes:jpg,jpeg,bmp,png,webp,svg,dng|dimensions:min_width=600,min_height=600',
-
-
+                    'photos.*.image' => 'image|max:512|mimes:jpg,jpeg,bmp,png,webp,svg,dng|dimensions:min_width=600,min_height=600',
                 ]
             );
+           
             if ($validated->fails()) {
                 return response()->error(
                     $validated->errors(),
-                422
+                    422
                 );
             }
+
             $validated_data = $validated->validated();
             $this->productService->updatePhotos($validated_data['product_id'], $validated_data['photos']);
             return response()->success(
@@ -595,20 +556,20 @@ class ProductController extends Controller
             );
         }
     }
-    public function checkItemoNo(Request $request)
+    public function checkItemoNo(Request $request) //si
     {
         try {
             $validated = Validator::make(
                 $request->all(),
                 [
                     // category id
-                    'item_no' => 'required|unique:products|digits:6',                
+                    'item_no' => 'required|unique:products|digits:6',
                 ]
             );
 
 
             if ($validated->fails()) {
-                return response()->json($validated->errors(),422);
+                return response()->json($validated->errors(), 422);
             }
             return response()->success(
                 true,
@@ -628,7 +589,7 @@ class ProductController extends Controller
      * @param  \App\Models\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function show()
+    public function show() //si
     {
         try {
             $product_id = request('product_id');
@@ -646,7 +607,7 @@ class ProductController extends Controller
         }
     }
 
-    public function info()
+    public function info() //si
     {
         try {
             $product_id = request('product_id');
@@ -708,25 +669,14 @@ class ProductController extends Controller
      * @param  \App\Models\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request)
+    public function update(Request $request) //si
     {
-		//$employee = auth('api-employees')->user();
-		//if(!$employee){
-		//	return response()->json('Unauthorized',403);
-		//}
-
-        //if (!$employee->hasRole(Roles::MAIN_ADMIN) ) {
-		//	return response()->json('Unauthorized',403);
-		//}
         try {
             $product_id = request('product_Id');
-            // return $product_id;
-
             $validate = Validator::make(
                 $request->all(),
-                // category id
-                [   'product_Id' => 'required|int|exists:products,id',
-                    //'product_item_no' => 'sometimes|max:255',
+                [
+                    'product_Id' => 'required|int|exists:products,id',
                     'product_name_ar' => 'sometimes|max:255',
                     'product_name_en' => 'sometimes|max:255',
                     'product_description_ar' => 'sometimes|max:255',
@@ -752,16 +702,11 @@ class ProductController extends Controller
                     'new_colors.*.name' => 'sometimes|max:100',
                     'new_colors.*.hex_code' => 'sometimes|max:100',
                     'new_colors.*.sku_code' => 'sometimes|max:100',
-                    // product variations
-                    //   'product_variations' => 'sometimes|array',
-                    //   'product_variations.*.product_variation_id' => 'sometimes|numeric',
-                    //   'product_variations.*.color' => 'sometimes|string',
-                    //   'product_variations.*.hex_code' => 'sometimes|string',
-                    //   'product_variations.*.size' => 'sometimes|string',
-                    // 'variations_sizes' => 'required|array',
-                    // 'variations_sizes.*.id' => 'integer|exists:sizes,id',
-                    // 'variations_colors' => 'required|array',
-                    // 'variations_colors.*.id' => 'integer|exists:colors,id',
+                    'variations' => 'required|array',
+                    'variations.*.size_id' => 'required',
+                    'variations.*.size_sku' => 'required',
+                    'variations.*.color_id' => 'required',
+                    'variations.*.color_sku' => 'required',
                 ]
             );
 
@@ -772,47 +717,31 @@ class ProductController extends Controller
                 );
             }
 
-           $validated_data = $validate->validated();
-           
-
+            $validated_data = $validate->validated();
             $product_data = $validated_data;
-          
             $product = $this->productService->update($product_data, $product_id);
+            $pricing_data =  $product_data['pricing'][0]['price_value'];
+            $product_pricing = $product->pricing;
+            
+            $this->productService->updatePricing($product_pricing, $pricing_data);
+            
+            $variations_data = collect($validated_data)->filter(function ($value, $key) {
+                return Str::startsWith($key, 'variations');
+            });
 
-           // $product_variations_data = $validated_data['product_variations'];
-         //   foreach ($product_variations_data as $product_variation_item) {
-                // $product_variation_id = $product_variation_item['product_variation_id'];
-             //   $product_variation = $this->productVariationService->update($product_variation_item, $product_variation_item['product_variation_id']);
-              //  $product_variations_sku_data = $product_variation_item['variation_sku'];
-                // return $product_variations_sku_data;
-               /* foreach ($product_variations_sku_data as $product_variations_sku_data_item) {
-                    // return $product_variations_sku_data_item;
-                    $product_variation_sku = $this->variationService->skuService->update($product_variations_sku_data_item, $product_variations_sku_data_item['sku_id']);
-                }*/
-                $pricing_data =  $product_data['pricing'][0]['price_value'];
+            $product_variations[] = $this->productService->createProductVariation($product->id, $product->item_no, $variations_data['variations']);
 
-                $product_pricing = $product->pricing;
-              
-                $this->productService->updatePricing($product_pricing, $pricing_data);
-
-
-              
-                return response()->success(
-                    [
-                        'product' => $product
-                    ],
-                    Response::HTTP_OK
-                );
-            }
-        
-         catch (\Throwable $th) {
-
- 
+            return response()->success(
+                [
+                    'product' => $product
+                ],
+                Response::HTTP_OK
+            );
+        } catch (\Throwable $th) {
             return response()->error(
                 $th->getMessage(),
                 Response::HTTP_OK
             );
-            // DB::rollback();
         }
     }
 
@@ -822,7 +751,7 @@ class ProductController extends Controller
      * @param  \App\Models\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function destroy()
+    public function destroy()//si
     {
         try {
             $product_id = request('product_id');
@@ -841,7 +770,7 @@ class ProductController extends Controller
             );
         }
     }
-    public function deleteMany()
+    public function deleteMany()//si
     {
         try {
 

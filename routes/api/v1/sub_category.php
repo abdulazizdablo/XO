@@ -12,14 +12,11 @@ Route::group(
         'as' => 'dashboard.categories.sub.'
     ],
     function () {
-        Route::get('', [AdminSubCategoryController::class, 'index'])->name('index');
-        Route::get('show', [AdminSubCategoryController::class, 'show'])->name('show');
-        Route::post('store', [AdminSubCategoryController::class, 'store'])->name('store');
-        Route::post('assign', [AdminSubCategoryController::class, 'assign'])->name('assign');
-        Route::post('update', [AdminSubCategoryController::class, 'update'])->name('update');
-        Route::post('delete', [AdminSubCategoryController::class, 'destroy'])->name('delete');
-        Route::delete('', [AdminSubCategoryController::class, 'forceDelete'])->name('force.delete');
-        Route::get('products', [AdminSubCategoryController::class, 'getProductForSubCategory'])->name('getProductForSubCategory');
+        Route::post('store', [AdminSubCategoryController::class, 'store']);//si
+        Route::post('assign', [AdminSubCategoryController::class, 'assign']);//si
+        Route::post('update', [AdminSubCategoryController::class, 'update']);//si
+        Route::post('delete', [AdminSubCategoryController::class, 'destroy']);//si
+		Route::post('change-visibility',[AdminSubCategoryController::class,'changeVisibility']);//si
 
     }
 );
@@ -31,12 +28,6 @@ Route::group(
         'as' => 'categories.sub.'
     ],
     function () {
-        Route::get('', [UserSubCategoryController::class, 'index'])->name('index');
-        Route::get('show', [UserSubCategoryController::class, 'show'])->name('show');
-        Route::get('products', [UserSubCategoryController::class, 'getProductForSubCategory'])->name('getProductForSubCategory');
-        Route::get('count', [UserSubCategoryController::class, 'getSubCategoriesCount']);
-	     Route::get('getSubCategoriesBySlug', [UserSubCategoryController::class, 'getSubCategoriesBySlug']);
-
-		
+        Route::get('', [UserSubCategoryController::class, 'index']);//si
     }
 );

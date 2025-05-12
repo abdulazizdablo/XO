@@ -55,7 +55,7 @@ class NotifyController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request)//si
     {
         try {
 			 $validate = Validator::make(
@@ -130,13 +130,9 @@ class NotifyController extends Controller
         //
     }
 
-    public function getUserNotifies(Request $request)
+    public function getUserNotifies(Request $request)//si
     {
-
-
         try {
-         
-
            $user=  auth('sanctum')->user()->loadCount('notifies');
 
             if ($user->notifies_count == 0) {
@@ -161,14 +157,8 @@ class NotifyController extends Controller
                         }
                         $products =   ProductCollection::make($products)->sortBy('id')->values()->all();
                       return response()->success($products,200);
-                        
-
             return response()->success($user->notifies, 200);
-
-
         } catch (Exception $e) {
-
-
             return response()->error(['Something Went Wrong'], 400);
         }
     }

@@ -99,7 +99,7 @@ class ProductResource extends JsonResource
 		// $has_discount = $this->discount_id;
 $discount = $this->discount;
             if ($discount != null) {
-                $discount_amount = (
+                $discount_amount = floor(
                     (($pricing->value ?? null) * $discount['percentage'])
                     / 100);
                 $new_price = ($pricing->value ?? null) - $discount_amount;

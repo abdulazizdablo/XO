@@ -90,8 +90,8 @@ class CouponController extends Controller
             $validate = Validator::make(
     $request->only('name', 'code', 'max_redemption', 'percentage', 'expired_at'),
     [
-         'name' => 'required|string|max:255',
-        'code' => 'required|string|max:255|unique:coupons,code',
+        'name' => 'required|string|max:255',
+        'code' => 'required|string|max:10|unique:coupons,code',
         'max_redemption' => 'required|numeric',
         'percentage' => 'required|numeric|lt:45',
         'expired_at' => '', // Make sure to add a proper validation rule for expired_at

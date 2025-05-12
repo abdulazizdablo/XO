@@ -59,7 +59,7 @@ class ProductVariationCollection extends ResourceCollection
                     // }),
                     'notify' => $is_notified,
                     'size' => [
-                        'value' => $item->size->value,
+                        'value' => $item->size->getTranslation('value', 'en'),
                     ],
 
                 ];

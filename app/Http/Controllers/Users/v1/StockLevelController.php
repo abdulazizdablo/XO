@@ -5,6 +5,10 @@ namespace App\Http\Controllers\Users\v1;
 use App\Http\Controllers\Controller;
 use App\Models\StockLevel;
 use App\Services\StockLevelService;
+
+use  App\Http\Requests\StockLevel\StoreStockRequest;
+use  App\Http\Requests\StockLevel\UpdateStockRequest;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use InvalidArgumentException;
@@ -39,15 +43,7 @@ class StockLevelController extends Controller
         }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create(Request $request)
-    {
-        //
-    }
+
 
     /**
      *
@@ -56,34 +52,13 @@ class StockLevelController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreStockRequest $request)
     {
         $sku_id = request('sku_id');
         $location_id = request('location_id');
         try {
-            $validate = Validator::make(
-                $request->all(),
-                [
-                    'stock.name' => 'required|string|max:255',
-                    'stock.min_stock_level' => 'required |string|max:255',
-                    'stock.max_stock_level' => 'required |string|max:255',
-                    'stock.safety_stock_level' => 'required|string|max:255',
-                    'stock.target_date' => 'required|string|max:255',
-                    'stock.sold_quantity' => 'required|string|max:255',
-                    'stock.status' => 'required|string|max:255',
-                ]
-            );
-
-            if ($validate->fails()) {
-                return response()->error(
-                    [
-                        $validate->errors()
-                    ],
-                    Response::HTTP_OK
-                );
-            }
-
-            $validated_data = $validate->validated();
+         
+            $validated_data = $request->validated();
             $stockLevel_data = $validated_data['stock'];
 
             $stockLevel = $this->stockLevelService->createStockLevel($stockLevel_data, $sku_id, $location_id);
@@ -125,16 +100,6 @@ class StockLevelController extends Controller
         }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\StockLevel $stockLevel
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(StockLevel $stockLevel)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
@@ -143,36 +108,16 @@ class StockLevelController extends Controller
      * @param  \App\Models\StockLevel $stockLevel
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request)
+    public function update(UpdateStockRequest. $request)
     {
         try {
             $location_id = request('location_id');
             $sku_id = request('sku_id');
             $stockLevel_id = request('stockLevel_id');
 
-            $validate = Validator::make(
-                $request->all(),
-                [
-                    'stock.name' => 'sometimes|string|max:255',
-                    'stock.min_stock_level' => 'sometimes |string|max:255',
-                    'stock.max_stock_level' => 'sometimes |string|max:255',
-                    'stock.safety_stock_level' => 'sometimes|string|max:255',
-                    'stock.target_date' => 'sometimes|string|max:255',
-                    'stock.sold_quantity' => 'sometimes|string|max:255',
-                    'stock.status' => 'sometimes|string|max:255',
-                ]
-            );
+         
 
-            if ($validate->fails()) {
-                return response()->error(
-                    [
-                        'errors' => $validate->errors()
-                    ],
-                    Response::HTTP_OK
-                );
-            }
-
-            $validated_data = $validate->validated();
+            $validated_data = $request->validated();
             $stockLevel_data = $validated_data['stock'];
           
             var_dump(  $validated_data);
@@ -207,7 +152,7 @@ class StockLevelController extends Controller
 
             return response()->success(
                 [
-                    'message' => 'Product deleted successfully'
+                    'message' => 'Stock Level deleted successfully'
                 ],
                 Response::HTTP_OK
             );

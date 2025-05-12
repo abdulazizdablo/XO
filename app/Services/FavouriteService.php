@@ -40,7 +40,7 @@ class FavouriteService
         return $favourite;
     }
 
-    public function createFavourite(int $user_id, int $product_id)
+    public function createFavourite(int $user_id, int $product_id)//si
     {
         $user = User::findOrFail($user_id);
 

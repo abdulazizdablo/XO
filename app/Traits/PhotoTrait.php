@@ -31,7 +31,8 @@ trait PhotoTrait
         $photo->move($path, $file_name);
 
         // Return the path to the saved file
-         return 'https://api.xo-textile.sy/public/'. $path . '/' . $file_name;
+        //return 'https://api.xo-textile.sy/public/'. $path . '/' . $file_name;
+        return 'https://testing-xo-back.blue-tech.ae/'. $path . '/' . $file_name; // without public because it depends on the config of the autoload file where we set the root path
     }
 
     protected function saveThumbnail($photo, $alias_name, $thumbnailfolder, $format, $quality = 80, $width = 300, $height = 300): string
@@ -121,7 +122,8 @@ trait PhotoTrait
         File::put($folder.'/'.$fileName, base64_decode($file));
 
         // Return the path to the saved file
-        return 'https://api.xo-textile.sy/public/'.$folder.'/'.$fileName;
+        //return 'https://api.xo-textile.sy/public/'.$folder.'/'.$fileName;
+        return 'https://testing-xo-back.blue-tech.ae/public/'.$folder.'/'.$fileName;
     }
 
     // public function verifyAndUpload(Request $request, $fieldname = 'image', $directory = 'images' ) {

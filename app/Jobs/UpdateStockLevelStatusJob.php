@@ -40,7 +40,7 @@ class UpdateStockLevelStatusJob implements ShouldQueue
         $day_as_hours = Carbon::now()->addHours(24);
 		$stock_levels = StockLevel::whereBetween('updated_at', [$now, $day_as_hours])->with([
              'audits' => function ($query) use ($now, $day_as_hours) {
-                   $query->where('auditable_type','App\Models\StockLevel' )->whereBetween('updated_at', [$now, $day_as_hours]);
+                   $query->where([['auditable_type','App\Models\StockLevel'],['url','LIKE', '%' . '/orders/store'] ])->whereBetween('updated_at', [$now, $day_as_hours]);
                    
                 }
            ])->get();
@@ -71,7 +71,8 @@ class UpdateStockLevelStatusJob implements ShouldQueue
 
     private function updateStockLevelStatus($stock_level, $difference)
     {
-        if ($difference > 0 && $difference <= 10) {
+        //if ($difference > 0 && $difference <= 10) {
+        if ($difference > 5) {
             $stock_level->status = 'fast-movement';
         } elseif ($difference > 0 && $difference <= 5) {
             $stock_level->status = 'slow-movement';

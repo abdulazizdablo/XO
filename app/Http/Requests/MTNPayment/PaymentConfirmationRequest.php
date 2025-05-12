@@ -26,7 +26,7 @@ class PaymentConfirmationRequest extends FormRequest
         return [
 
             'Phone' => 'required|string|digits:12',
-            'Code' => 'required|string|digits:6',
+            'Code' => 'required|string',//|digits:4',
             'order_id' => 'sometimes|exists:orders,id',
             'gift_id' => 'required_without:order_id|required_with:gift_code|exists:coupons,id',
             'gift_code' => 'required_without:order_id|required_with:gift_id|exists:coupons,code|string',

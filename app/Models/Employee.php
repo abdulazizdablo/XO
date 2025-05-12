@@ -64,13 +64,7 @@ class Employee extends Authenticatable
      public function shift(){
         return $this->belongsTo(Shift::class);
     }
-
-
-    public function return_orders()
-    {
-        return $this->hasMany(ReturnOrder::class);
-    }
-
+    
     public function account()
     {
 

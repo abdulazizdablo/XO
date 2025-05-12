@@ -82,7 +82,7 @@ class ProductCollectionForPricingWithoutCollect extends ResourceCollection
                 if ($has_discount) {
                     $has_discount = true;
                     $discount = $item->discount;
-                    $discount_amount = (
+                    $discount_amount = floor(
                         (($pricing->value ?? null) * $discount['percentage'])
                         / 100);
                     $new_price = ($pricing->value ?? null) - $discount_amount;

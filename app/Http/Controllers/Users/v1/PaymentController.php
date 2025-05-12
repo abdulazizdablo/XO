@@ -28,11 +28,7 @@ class PaymentController extends Controller
         $this->merchant_id = config('app.ecash_merchant_id');
         $this->merchant_secret = config('app.ecash_merchant_secret');
     }  
-	public function handleRedirect(Request $request)
-    {
-        return $request->all();
-    }
-    
+
     public function handleCallback(Request $request)
     {
 		$validatedData = $request->validate([
@@ -100,18 +96,18 @@ class PaymentController extends Controller
 
 			foreach($fcm_tokens as $fcm){
 				$fcm_token = FcmToken::where([['fcm_token', $fcm],['employee_id',$employee->id]])->first();
-				if($fcm_token->lang == 'en'){
+				if($fcm_token?->lang == 'en'){
 					$this->send_notification($fcm, 
 											 'A new order was created',
 											 'A new order was created', 
-											 'dashboard_orders', 
-											 'flutter_app'); // key source	
+											 'dashboard_orders,'.$order->id, 
+											 'dashboard'); // key source	
 				}else{
 					$this->send_notification($fcm, 
 											 'تم إنشاء طلب شراء جديد',
 											 'تم إنشاء طلب شراء جديد',
-											 'dashboard_orders', 
-											 'flutter_app'); // key source
+											 'dashboard_orders,'.$order->id, 
+											 'dashboard'); // key source
 				}	
 			}
 
@@ -131,6 +127,7 @@ class PaymentController extends Controller
                     'transaction_uuid' => Str::random(5),
                     'operation_type' => 'create-order',
                     'payment_method' => 'ecash',
+					'transaction_source' => $validatedData['TransactionNo'],
                     'amount' => $validatedData['Amount'],
                     'status' => 'completed',
                 ]);
@@ -169,6 +166,7 @@ class PaymentController extends Controller
 				//Log::debug('value: '.$value);
 				//Log::debug('============================= ');
 				$transaction->update(['amount'=>$value,
+									  'transaction_source' => $validatedData['TransactionNo'],
 									  'payment_method'=>'ecash']);
 				//Log::debug('transaction: '.$transaction);
 				//Log::debug('============================= ');
@@ -190,6 +188,7 @@ class PaymentController extends Controller
 				//Log::debug('value: '.$value);
 				$transaction->update(['amount'=>$value,
 									  'payment_method'=>'ecash',
+									  'transaction_source' => $validatedData['TransactionNo'],
 									  'status'=>'paid']);
 				//Log::debug(' transaction: '.$transaction);
 				$coupon = Coupon::where('id',$transaction->gift_id)->first();
@@ -276,14 +275,14 @@ class PaymentController extends Controller
 					$this->send_notification($fcm, 
 											 'A new order was created',
 											 'A new order was created', 
-											 'dashboard_orders', 
-											 'flutter_app'); // key source	
+											 'dashboard_orders,'.$order->id, 
+											 'dashboard'); // key source	
 				}else{
 					$this->send_notification($fcm, 
 											 'تم إنشاء طلب شراء جديد',
 											 'تم إنشاء طلب شراء جديد',
-											 'dashboard_orders', 
-											 'flutter_app'); // key source
+											 'dashboard_orders,'.$order->id, 
+											 'dashboard'); // key source
 				}	
 			}
 
@@ -303,6 +302,7 @@ class PaymentController extends Controller
                     'transaction_uuid' => Str::random(5),
                     'operation_type' => 'replace-order',
                     'payment_method' => 'ecash',
+					'transaction_source' => $validatedData['TransactionNo'],
                     'amount' => $validatedData['Amount'],
                     'status' => 'completed',
                 ]);

@@ -5,6 +5,7 @@
 /storage/*.key
 /vendor
 .env
+.env.server
 .env.backup
 .env.production
 .phpunit.result.cache
@@ -16,3 +17,5 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+extraction.py
+laravel_report.txt

@@ -48,23 +48,15 @@ class NotifyService
         return $notify;
     }
 
-    public function createNotify($user_id, $product_variation_id)
+    public function createNotify($user_id, $product_variation_id) //si
     {
         $user = User::findOrFail($user_id)->load('notifies');
-
-        // check for product variation id
         $product_stock_level = StockLevel::where('product_variation_id', $product_variation_id)->get();
 
-
         if (!$product_stock_level) {
-
-
             return response()->error(['message' => 'There is no quantites in stock'], 204);
-        } 
-        
-        else if (($product_stock_level) && ($product_stock_level->sum('current_stock_level') != 0)) {
+        } else if (($product_stock_level) && ($product_stock_level->sum('current_stock_level') != 0)) {
 
-           // $user->notifies()->detach($product_variation_id);
             return ['is_notified' => false, 'message' => 'This product can not be notified '];
         }
 

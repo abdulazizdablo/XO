@@ -3,18 +3,12 @@
 namespace App\Http\Controllers\Users\v1;
 
 use App\Http\Controllers\Controller;
-use App\Models\Section;
 use App\Services\SectionService;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Response;
 
 class SectionController extends Controller
 {
-
-   
-
     public function __construct(
         protected   SectionService $sectionService
         )
@@ -22,7 +16,7 @@ class SectionController extends Controller
    
     }
 
-    public function index()
+    public function index()//si
     {
         $sections = $this->sectionService->getAllSections();
         return response()->success(
@@ -31,7 +25,7 @@ class SectionController extends Controller
         );
     }
 
-    public function info()
+    public function info()//si
     {
         $sections = $this->sectionService->getSectionsInfo();
         return response()->success(
@@ -39,31 +33,8 @@ class SectionController extends Controller
             Response::HTTP_OK
         );
     }
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Section  $section
-     * @return \Illuminate\Http\Response
-     */
-    public function show()
-    {
-        try {
-            $section_id = request('section_id');
-            $section = $this->sectionService->getSection($section_id);
 
-            return response()->success(
-
-                    $section,
-
-                Response::HTTP_OK
-            );
-        } catch (InvalidArgumentException $e) {
-            return response()->error($e->getMessage(),Response::HTTP_NOT_FOUND);
-
-        }
-    }
-
-    public function getSectionCategories()
+    public function getSectionCategories()//si
     {
         try {
             $section_id = request('section_id');
@@ -80,7 +51,7 @@ class SectionController extends Controller
     }
 
 
-    public function getSectionCategoriesSubs()
+    public function getSectionCategoriesSubs()//si
     {
         try {
             $section_id = request('section_id');
@@ -95,7 +66,7 @@ class SectionController extends Controller
         }   
     }
     
-    public function getSectionCategoriesInfo()
+    public function getSectionCategoriesInfo()//si
     {
         try {
             $section_id = request('section_id');
@@ -110,7 +81,7 @@ class SectionController extends Controller
         }
     }
 
-    public function getSectionSubCategories()
+    public function getSectionSubCategories()//si
     {
         try {
             $section_id = request('section_id');

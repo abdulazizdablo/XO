@@ -35,7 +35,7 @@ class Account extends Model
         'updated_at' => 'datetime:Y-m-d H:i:s',
     ];
 	
-    protected $fillable = ['email', 'password'];
+    protected $fillable = ['email'];
 
     //protected $appends = ['isLinked'];
 

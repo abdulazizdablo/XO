@@ -17,7 +17,7 @@ class CheckUserToken
      */
     public function handle(Request $request, Closure $next)
     {
-        if (!Auth::check()) {
+        if (!auth('sanctum')->check()) {
             // The request is not authenticated, return a response indicating authentication is required.
             return response()->error(['message' => 'Unauthorized.'],  401);
         }

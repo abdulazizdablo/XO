@@ -8,17 +8,19 @@ use Illuminate\Support\Facades\Route;
 Route::group(
     [
         'prefix' => '/dashboard/coupons',
-        'as' => 'dashboard.coupons.'
+        'as' => 'dashboard.coupons.',
+		'middleware' => 'auth'
+		
     ],
     function () {
-        Route::get('all', [AdminCouponController::class, 'index']);
-        Route::get('names', [AdminCouponController::class, 'names']);
+        Route::get('all', [AdminCouponController::class, 'index']);//si
+        Route::get('names', [AdminCouponController::class, 'names']);//si
         Route::get('show', [AdminCouponController::class, 'show']);
-        Route::post('store', [AdminCouponController::class, 'store']);
+        Route::post('store', [AdminCouponController::class, 'store']);//si
         Route::post('update', [AdminCouponController::class, 'update']);
         Route::post('delete', [AdminCouponController::class, 'destroy']);
         Route::delete('', [AdminCouponController::class, 'forceDelete']);
-        Route::get('cards', [AdminCouponController::class, 'cards']);
+        Route::get('cards', [AdminCouponController::class, 'cards']);//si
         Route::get('revealGiftCardPassword', [AdminCouponController::class, 'revealGiftCardPassword']);
 
 
@@ -28,23 +30,24 @@ Route::group(
 Route::group(
     [
         'prefix' => '/v1/coupons',
-        'as' => 'coupons.'
+        'as' => 'coupons.',
+		'middleware' => 'auth'
     ],
     function () {
-        Route::get('', [UserCouponController::class, 'index'])->name('index');
-        Route::get('show', [UserCouponController::class, 'show'])->name('show');
-        Route::get('getCouponByCode', [UserCouponController::class, 'getCouponByCode']);
-        Route::post('checkGiftCard', [UserCouponController::class, 'checkGiftCard']);
-        Route::post('checkCoupon', [UserCouponController::class, 'checkGiftCard']);
-        Route::post('storeGiftCard', [UserCouponController::class, 'storeGiftCard']);
-        Route::post('changePassword', [UserCouponController::class, 'changePassword']);
+        Route::get('', [UserCouponController::class, 'index']);//si
+        Route::get('show', [UserCouponController::class, 'show']);
+        Route::get('getCouponByCode', [UserCouponController::class, 'getCouponByCode']);//si
+        Route::post('checkGiftCard', [UserCouponController::class, 'checkGiftCard']);//si
+        Route::post('checkCoupon', [UserCouponController::class, 'checkGiftCard']);//si
+        Route::post('storeGiftCard', [UserCouponController::class, 'storeGiftCard']);//si
+        Route::post('changePassword', [UserCouponController::class, 'changePassword']);//si
         Route::post('update', [UserCouponController::class, 'update']);
         Route::post('delete', [UserCouponController::class, 'destroy']);
-        Route::get('activeGiftCard', [UserCouponController::class, 'activeGiftCard']);
-        Route::get('deactiveGiftCard', [UserCouponController::class, 'deactiveGiftCard']);
+        Route::get('activeGiftCard', [UserCouponController::class, 'activeGiftCard']);//si
+        Route::get('deactiveGiftCard', [UserCouponController::class, 'deactiveGiftCard']);//si
         Route::get('revealGiftCardPassword', [UserCouponController::class, 'revealGiftCardPassword']);
-        Route::post('recharge-gift-card', [UserCouponController::class, 'rechargeGiftCard']);
-        Route::get('user-gift-cards', [UserCouponController::class, 'getUserGiftCards']);
+        Route::post('recharge-gift-card', [UserCouponController::class, 'rechargeGiftCard']);//si
+        Route::get('user-gift-cards', [UserCouponController::class, 'getUserGiftCards']);//si
 
         
 

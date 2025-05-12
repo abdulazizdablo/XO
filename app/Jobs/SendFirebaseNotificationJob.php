@@ -10,77 +10,86 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Models\FcmToken;
+use Google\Auth\Credentials\ServiceAccountCredentials;
+use GuzzleHttp\Exception\RequestException;
 
 class SendFirebaseNotificationJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $userFcmToken;
-    protected $titleAr;
-    protected $titleEn;
-    protected $bodyAr;
-    protected $bodyEn;
+    protected $title;
+    protected $body;
     protected $type;
     protected $serverKey;
     protected $priority;
+    protected $client;
+    protected $credentialsPath;
+    protected $project_id;
 
     public function __construct(
         string $userFcmToken,
-        string $titleAr,
-        string $titleEn,
-        string $bodyAr,
-        string $bodyEn,
+        string $title,
+        string $body,
         string $type,
         string $serverKey,
         ?string $priority = null
     ) {
         $this->userFcmToken = $userFcmToken;
-        $this->titleAr = $titleAr;
-        $this->titleEn = $titleEn;
-        $this->bodyAr = $bodyAr;
-        $this->bodyEn = $bodyEn;
+        $this->title = $title;
+        $this->body = $body;
         $this->type = $type;
         $this->serverKey = $serverKey;
         $this->priority = $priority;
+        $this->credentialsPath =  config('services.fcm_xo_app.credentialsPath');
+        $this->project_id = /*"xo-project-c6723";*/ config('services.fcm_xo_app.project_id');
     }
 
     public function handle()
     {
-        $reqData['to'] = $this->userFcmToken;
-        $reqData['data']['title_ar'] = $this->titleAr;
-        $reqData['data']['title_en'] = $this->titleEn;
-        $reqData['data']['body_ar'] = $this->bodyAr;
-        $reqData['data']['body_en'] = $this->bodyEn;
-        $reqData['data']['type'] = $this->type;
-        $reqData['data']['click_action'] = 'FLUTTER_NOTIFICATION_CLICK';
+        $credentials = new ServiceAccountCredentials('https://www.googleapis.com/auth/firebase.messaging',$this->credentialsPath);
+        $authToken = $credentials->fetchAuthToken()['access_token'];
+        $url = "https://fcm.googleapis.com/v1/projects/{$this->project_id}/messages:send";
+        try{
+            $response = Http::withToken($authToken)->post($url,
+            [
+                'message'=>['token' => $this->userFcmToken,
+                'data' => [
+                    'type' => $this->type,
+                    'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
+                ],
+                'notification' => [
+                    'title' => $this->title ,
+                    'body' => $this->body 
+                ],
+                'android' => [
+                    'priority' => 'high'
+                ],
+                'apns' => [
+                    'headers' => [
+                        'apns-priority' => '10'
+                    ],
+                    'payload' => [
+                        'aps' => [
+                            'content-available' => 1,
+                            'badge' => 5,
+                            'priority' => 'high'
+                        ]
+                    ]
+                ]
+            ]]);
+			Log::debug('res');
+			Log::debug('-----');
+			Log::debug('User FCM Token: '.$this->userFcmToken);
+			Log::debug('-----');
+			Log::debug($response);
+			Log::debug('-----');
 
-        if ($this->priority !== null) {
-            $reqData['data']['priority'] = $this->priority;
-        } else {
-            $reqData['data']['priority'] = 'low';
+            return $response->getBody()->getContents();
+        }catch(RequestException $e){
+            return $e->getMessage();
         }
-        $reqData['data']['priority'] = 'high';
-
-        if ($this->serverKey === 'delivery_app') {
-        	$key = 'key=AAAAvhBn_EM:APA91bEirZCBMXGcHVFOlKN0NkGc0gY6IWHTq5WEtsjOYgoXYquUE-y4DdIi-k-lFBjHTayEzUVCCY0zobfA1pnGq84C0iOD36gASzTMweCmRRdepTuyveqXY6IjISleG7QTrY4xxjt8';	
-		}else{
-			$key = 'key=AAAAYNDv6iw:APA91bG0KivS-dWnp_xP6UR09RqcBFJFML-3aP80JQyS0YHDKxV9ehUimSr2wUY58a8vE_mSSpMGduU_oGYcCTrBQj2p-leesexU6S9ulUgYqGQBEU0L8_Bg_XuUadx10Yy3S98ijyy7';
-		}
-
-        /*$res = */Http::withHeaders([
-            'Content-Type' => 'application/json',
-            'Authorization' => $key,
-        ])->post('https://fcm.googleapis.com/fcm/send', $reqData);
-		
-		/*Log::debug('key');
-        Log::debug('-----');
-        Log::debug($key);
-        Log::debug('res');
-        Log::debug('-----');
-        Log::debug($res);
-        Log::debug('-----');
-        Log::debug('reqData');
-        Log::debug('-----');
-        Log::debug(json_encode($reqData));*/
     }
+
 }

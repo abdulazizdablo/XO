@@ -17,7 +17,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('order_item_id')->constrained('order_items')->onDelete('cascade')->onUpdate('cascade');
             $table->unsignedBigInteger('packaging_id')->nullable();
-            $table->foreign('packaging_id')->references('id')->on('packages');
             $table->softDeletes();
             $table->timestamps();
         });

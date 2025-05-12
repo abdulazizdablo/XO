@@ -9,22 +9,23 @@ Route::group([
     'prefix' => '/dashboard/favourites',
     'as' => 'dashboard.favourites.'
 ], function () {
-    Route::get('', [AdminFavouriteController::class, 'index'])->name('index');
-    Route::get('show', [AdminFavouriteController::class, 'show'])->name('show');
-    Route::post('store', [AdminFavouriteController::class, 'store'])->name('store');
-    Route::post('update', [AdminFavouriteController::class, 'update'])->name('update');
-    Route::post('delete', [AdminFavouriteController::class, 'destroy'])->name('delete');
-    Route::delete('', [AdminFavouriteController::class, 'forceDelete'])->name('force.delete');
+    Route::get('', [AdminFavouriteController::class, 'index']);
+    Route::get('show', [AdminFavouriteController::class, 'show']);
+    Route::post('store', [AdminFavouriteController::class, 'store']);
+    Route::post('update', [AdminFavouriteController::class, 'update']);
+    Route::post('delete', [AdminFavouriteController::class, 'destroy']);
+    Route::delete('', [AdminFavouriteController::class, 'forceDelete']);
 });
 
 Route::group([
     'prefix' => '/v1/favourites',
-    'as' => 'favourites.'
+    'as' => 'favourites.',
+	'middleware' => 'auth'
 ], function () {
-    Route::get('', [UserFavouriteController::class, 'index'])->name('index');
-    Route::get('show', [UserFavouriteController::class, 'show'])->name('show');
-    Route::post('store', [UserFavouriteController::class, 'store'])->name('store');
-    Route::post('update', [UserFavouriteController::class, 'update'])->name('update');
-    Route::post('delete', [UserFavouriteController::class, 'destroy'])->name('delete');
-    Route::delete('', [UserFavouriteController::class, 'forceDelete'])->name('force.delete');
+    Route::get('', [UserFavouriteController::class, 'index']);
+    Route::get('show', [UserFavouriteController::class, 'show']);
+    Route::post('store', [UserFavouriteController::class, 'store']);//si
+    Route::post('update', [UserFavouriteController::class, 'update']);
+    Route::post('delete', [UserFavouriteController::class, 'destroy']);
+    Route::delete('', [UserFavouriteController::class, 'forceDelete']);
 });

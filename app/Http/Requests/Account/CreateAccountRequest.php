@@ -27,7 +27,7 @@ class CreateAccountRequest extends FormRequest
         return [
             'role' => 'required|string|exists:roles,name',
             'email' => 'required|email|unique:accounts,email',
-            'password' => 'required|string|confirmed|min:8|regex:/^[^\s]+$/'
+            //'password' => 'required|string|confirmed|min:8|regex:/^[^\s]+$/'
         ];
     }
 	

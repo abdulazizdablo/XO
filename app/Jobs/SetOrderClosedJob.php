@@ -9,6 +9,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use App\Models\Order;
+use App\Models\Setting;
 use Carbon\Carbon;
 
 class SetOrderClosedJob implements ShouldQueue
@@ -32,8 +33,15 @@ class SetOrderClosedJob implements ShouldQueue
      */
     public function handle()
     {
+		$exchangable_setting =  Setting::where('key', 'return_policy')->firstOrFail();
+		if ($exchangable_setting != null) {
+				$value = json_decode($exchangable_setting->value);
+				$days = $value->en->days;
+				//$fees = $key['value']->en->shipping_fee;
+				//$free_shipping = $key['value']->en->free_shipping;
+			}else{$days = 15;}
 		// Get all shipments that are not delivered yet and have a date less than now
-		$orders = Order::where('receiving_date', '<', now()->subDays(15))->get();
+		$orders = Order::where('receiving_date', '<', now()->subDays($days))->get();
 
 		// Loop through each shipment and update the date to the next day
 		foreach ($orders as $order) {

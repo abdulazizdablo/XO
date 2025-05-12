@@ -4,8 +4,6 @@ namespace Database\Factories;
 
 use App\Models\Order;
 use App\Models\ProductVariation;
-use App\Models\ReturnOrder;
-use App\Models\Sku;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -20,7 +18,6 @@ class OrderItemFactory extends Factory
      */
     public function definition()
     {
-        // $return_id = $this->faker->randomElement([ReturnOrder::inRandomOrder()->first()->id, null]);
         return [
             'return_order_id' => null,
             'order_id' => Order::inRandomOrder()->first()->id,
@@ -29,7 +26,6 @@ class OrderItemFactory extends Factory
             'price' => $this->faker->randomDigit(),
             'original_price' => $this->faker->randomDigit(),
             'reason' => null,
-            // 'reason' => $return_id == null ? null : $this->faker->text(20),
         ];
     }
 }

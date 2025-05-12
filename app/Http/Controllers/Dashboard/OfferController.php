@@ -5,6 +5,10 @@ namespace App\Http\Controllers\Dashboard;
 use App\Http\Controllers\Controller;
 use App\Models\Offer;
 use App\Services\OfferService;
+
+use App\Http\Requests\Offer\StoreOfferRequest;
+use App\Http\Requests\Offer\UpdateOfferRequest;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use InvalidArgumentException;
@@ -52,30 +56,12 @@ class OfferController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreOfferRequest $request)
     {
         try {
-            $validate = Validator::make($request->all(),
-                [
-                    'name' => 'required|string|max:255',
-                    'type' => 'required|string|max:255',
-                    'valid' => 'required|boolean',
-                    'description' => 'required|string|max:255',
-                    'expired_at' => 'required',
-                ]
-            );
+      
 
-            if ($validate->fails()) {
-                return response()->error([
-                        'errors' => $validate->errors()
-                    ]
-                    , Response::HTTP_UNPROCESSABLE_ENTITY
-                );
-            }
-
-            $validated_data = $validate->validated();
-
-            $offerService = $this->offerService->createOffer($validated_data);
+            $offerService = $this->offerService->createOffer($request->validated());
 
             return response()->success(
                 [
@@ -115,16 +101,6 @@ class OfferController extends Controller
         }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Offer  $offer
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Offer $offer)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
@@ -133,32 +109,21 @@ class OfferController extends Controller
      * @param  \App\Models\Offer  $offer
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request)
+    public function update(UpdateOfferRequest $request)
     {
         try {
-            $offer_id = request('offer_id');
+          
 
-            $validate = Validator::make($request->all(),
-                [
-                    'name' => 'sometimes|string|max:255',
-                    'type' => 'sometimes|string|max:255',
-                    'valid' => 'sometimes|boolean',
-                    'description' => 'sometimes|string|max:255',
-                    'expired_at' => 'sometimes',
-                ]
-            );
+          
+     $validated_data = $request->only([
+    'name',
+    'type',
+    'valid',
+    'description',
+    'expired_at',
+]);
 
-            if ($validate->fails()) {
-                return response()->error(
-                    $validate->errors()
-                    
-                    , Response::HTTP_UNPROCESSABLE_ENTITY
-                );
-            }
-
-            $validated_data = $validate->validated();
-
-            $offerService = $this->offerService->updateOffer($validated_data, $offer_id);
+            $offerService = $this->offerService->updateOffer($validated_data,$request->validated('offer_id'));
 
             return response()->success(
                 [
