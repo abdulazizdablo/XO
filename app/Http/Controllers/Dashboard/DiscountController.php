@@ -143,7 +143,7 @@ class DiscountController extends Controller
                 $request->all(),
                 [
                     'name' => 'sometimes|string|max:255',
-					'discount_id' => 'required|integer|exists:discounts,id'
+					'discount_id' => 'required|integer|exists:discounts,id',
                     'description' => 'sometimes|string|max:255',
                     'percntage' => 'sometimes|numeric',
                     'start_date' => 'sometimes',

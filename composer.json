@@ -31,6 +31,7 @@
         "umutphp/laravel-model-recommendation": "^0.2.9"
     },
     "require-dev": {
+        "andreaselia/laravel-api-to-postman": "^2.1",
         "fakerphp/faker": "^1.9.1",
         "laravel/pint": "^1.0",
         "laravel/sail": "^1.0.1",
