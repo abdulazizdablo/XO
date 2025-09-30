@@ -32,10 +32,10 @@ class EcashPaymentService
         $this->terminal_key = config('app.ecash_terminal_key');
         $this->merchant_id = config('app.ecash_merchant_id');
         $this->merchant_secret = config('app.ecash_merchant_secret');
-		$this->redirect_url = urlencode("https://xo-textile.sy/cart/shipping/payment-success");
-		$this->gift_redirect_url = urlencode("https://xo-textile.sy/my-profile/giftcards?payment-coupon=success");
-		//$this->redirect_url = urlencode(str_replace('/public', '', url(config('app.ecash_redirect_url'))));
-		$this->callback_url = urlencode(url(config('app.ecash_callback_url')));
+        $this->redirect_url = urlencode("https://xo-textile.sy/cart/shipping/payment-success");
+        $this->gift_redirect_url = urlencode("https://xo-textile.sy/my-profile/giftcards?payment-coupon=success");
+        //$this->redirect_url = urlencode(str_replace('/public', '', url(config('app.ecash_redirect_url'))));
+        $this->callback_url = urlencode(url(config('app.ecash_callback_url')));
         $this->gift_callback_url = urlencode(url(config('app.ecash_gift_callback_url')));
         $this->replace_callback_url = urlencode(url(config('app.ecash_replace_callback_url')));
         $this->currency = config('app.ecash_currency');
@@ -76,7 +76,7 @@ class EcashPaymentService
      *@return mixed
      */
 
-     //to delete pay function
+    //to delete pay function
     public function pay()
     {
         $full_url = "https://checkout.ecash-pay.co/Checkout/Card/GB97ST/IXZM1E/744F03E5FE93EC8C7302DAD09E823701/SYP/1000.00/";
@@ -100,13 +100,15 @@ class EcashPaymentService
         $order_ref = $data['order_ref'];
         $verification_code = strtoupper(md5($this->merchant_id . $this->merchant_secret . $amount . $order_ref));
         $lang = $data['lang'];
-		return ['exchange' => $data['exchange'],
-									'amount'=>  $data['amount'],
-									'message' => 'You will be redirected to eCash',
-									'order_id' => $data['order_id'],
-									'phone' => $data['phone'],
-									'invoice_number' => $data['invoice_number'],
-									'url' => $this->base_url . "Checkout" . "/" . $checkout_type . "/" . $this->terminal_key . "/" . $this->merchant_id . "/" . $verification_code . "/" . $this->currency . "/" . $amount . "/" . $lang . "/" . $order_ref . "/" . $this->redirect_url . "/" . $this->replace_callback_url];
+        return [
+            'exchange' => $data['exchange'],
+            'amount' =>  $data['amount'],
+            'message' => 'You will be redirected to eCash',
+            'order_id' => $data['order_id'],
+            'phone' => $data['phone'],
+            'invoice_number' => $data['invoice_number'],
+            'url' => $this->base_url . "Checkout" . "/" . $checkout_type . "/" . $this->terminal_key . "/" . $this->merchant_id . "/" . $verification_code . "/" . $this->currency . "/" . $amount . "/" . $lang . "/" . $order_ref . "/" . $this->redirect_url . "/" . $this->replace_callback_url
+        ];
         //return   [$full_url = $this->base_url . "Checkout" . "/" . $checkout_type . "/" . $this->terminal_key . "/" . $this->merchant_id . "/" . $verification_code . "/" . $this->currency . "/" . $amount . "/" . $lang . "/" . $order_ref . "/" . $this->redirect_url . "/" . $this->replace_callback_url];
     }
 
@@ -118,9 +120,9 @@ class EcashPaymentService
         $verification_code = strtoupper(md5($this->merchant_id . $this->merchant_secret . $amount . $order_ref));
         $lang = $data['lang'];
 
-        return   $full_url = $this->base_url . "Checkout" . "/" . $checkout_type . "/" . $this->terminal_key . "/" . $this->merchant_id . "/" . $verification_code . "/" . $this->currency . "/" . $amount . "/" . $lang . "/" . $order_ref . "/" . $this->gift_redirect_url . "/" . $this->gift_callback_url;   
+        return   $full_url = $this->base_url . "Checkout" . "/" . $checkout_type . "/" . $this->terminal_key . "/" . $this->merchant_id . "/" . $verification_code . "/" . $this->currency . "/" . $amount . "/" . $lang . "/" . $order_ref . "/" . $this->gift_redirect_url . "/" . $this->gift_callback_url;
     }
-    
+
 
     public function getPaymentStatus($data)
     {
