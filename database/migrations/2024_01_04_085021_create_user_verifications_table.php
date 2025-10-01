@@ -14,8 +14,9 @@ return new class extends Migration
     public function up()
     {
         Schema::create('user_verifications', function (Blueprint $table) {
-			$table->id();
+            $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->timestamp('expired_at')->nullable(); // العمود الناقص
             $table->string('verify_code');
             $table->timestamps();
         });

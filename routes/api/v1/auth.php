@@ -24,7 +24,7 @@ Route::group([
 ], function () {
 
     Route::post('register', [RegisterUserController::class, 'register']); //si
-    Route::post('login', [RegisterUserController::class, 'login'])->middleware('test-cors');//si
+    Route::post('login', [RegisterUserController::class, 'login']);
     Route::post('verify', [RegisterUserController::class, 'verify']);//si
     Route::post('resend-code', [RegisterUserController::class, 'resendCode']);//si
     Route::post('verify-otp-password', [RegisterUserController::class, 'verifyForPassword']);//si

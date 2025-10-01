@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('exchanges', function (Blueprint $table) {
             $table->id();
             $table->foreignId('order_id')->constrained();
-            $table->dateTime('exhange_date');
+            $table->dateTime('exchange_date');
             $table->smallInteger('quantity');
             $table->decimal('total_exchange', 8, 2);
             $table->string('status');

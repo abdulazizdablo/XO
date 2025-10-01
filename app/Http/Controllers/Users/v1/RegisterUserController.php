@@ -28,7 +28,8 @@ class RegisterUserController extends Controller
 	use FirebaseNotificationTrait;
 	use SyriatelSendOTPTrait;
 
-	public function construct(){
+	public function construct()
+	{
 		$this->initializeSyriatelSendOTP(); // to solve conflict because both traits have construct function
 	}
 
@@ -53,12 +54,12 @@ class RegisterUserController extends Controller
 				//$this->send_otp($verify_code, $phone);
 				return response()->success(['message' => 'You have not verified your phone number yet we will sent OTP', 'user_id' => $user_not_verified->id], 200);
 			} else {
-				$phone_exists = User::where('phone', $phone)->exists();//we didn't include it in the form request validation because the user might register once and do not verify his account so the phone number will be saved in the database and this is why we first check if the phone is used put not verified and if not the we check here if it is unique
-				if($phone_exists){
+				$phone_exists = User::where('phone', $phone)->exists(); //we didn't include it in the form request validation because the user might register once and do not verify his account so the phone number will be saved in the database and this is why we first check if the phone is used put not verified and if not the we check here if it is unique
+				if ($phone_exists) {
 					return response()->error(['message' => 'The phone has already been taken'], 400);
 				}
 			}
-			
+
 			if ($email) {
 				$existingUser = User::where('email', $email)->first();
 				if ($existingUser) {
@@ -98,13 +99,13 @@ class RegisterUserController extends Controller
 		}
 	}
 
-	public function resendCode(RegisterResendCodeRequest $request)//si
+	public function resendCode(RegisterResendCodeRequest $request) //si
 	{
 		try {
 			$phone = $request->validated('phone');
 			$user = User::where('phone', $phone)->firstOrFail();
-			
-			
+
+
 			//$verify_code = (string) random_int(1000, 9999);
 			$verify_code = '0000';
 			UserVerification::where('user_id', $user->id)->delete();
@@ -122,13 +123,13 @@ class RegisterUserController extends Controller
 			);
 		}
 	}
-	
-public function resetPassword(ResetPasswordRequest $request)//si
+
+	public function resetPassword(ResetPasswordRequest $request) //si
 	{
 		$user = User::where('phone', $request->phone)->firstOrFail();
 		$user_verify = UserVerification::where('user_id', $user->id)->latest()->firstOrFail();
 		$code = $user_verify->verify_code;
-//dd(	$request->validated('verification_code'));
+		//dd(	$request->validated('verification_code'));
 		if (now() > $user_verify->expired_at) {
 			return response()->error(['message' => trans('register_user.otp_expired', [], $request->header('Content-Language') ?? 'en')], 400);
 		}
@@ -141,7 +142,7 @@ public function resetPassword(ResetPasswordRequest $request)//si
 				return response()->error('Something went wrong!', 400);
 			}
 		}
-	
+
 		$password = Hash::make($request->password);
 		$user->forceFill([
 			'password' => $password,
@@ -165,10 +166,10 @@ public function resetPassword(ResetPasswordRequest $request)//si
 		}
 
 
-		
+
 		$token = $user->createToken('authToken', ['user'])->plainTextToken;
 
-	
+
 
 		return response()->json([
 			//  'access_token' => $newAccessToken,
@@ -178,7 +179,7 @@ public function resetPassword(ResetPasswordRequest $request)//si
 		]);
 	}
 
-	public function verify(VerifyUserRequest $request)//si
+	public function verify(VerifyUserRequest $request) //si
 	{
 		$phone = $request->validated('phone');
 		$code = $request->validated('verification_code');
@@ -195,9 +196,7 @@ public function resetPassword(ResetPasswordRequest $request)//si
 				return response()->error(['message' => trans('register_user.invailed_otp', [], $request->header('Content-Language') ?? 'en')], 400);
 			} else if (now()->greaterThanOrEqualTo(Carbon::parse($user_verify->expired_at))) {
 				return response()->error(['message' => trans('register_user.otp_expired', [], $request->header('Content-Language') ?? 'en')], 400);
-			}
-
-			else if ($user_verify_code == $code) {
+			} else if ($user_verify_code == $code) {
 				$user = tap(User::where('phone', $phone)->firstOrFail())->update(['isVerified' => 1]);
 				$token = $user->createToken('authToken', ['user'])->plainTextToken;
 				$response = [
@@ -237,7 +236,7 @@ public function resetPassword(ResetPasswordRequest $request)//si
 								$fcm,
 								"A new user account was created with name: " . $user->fullName,
 								"A new user account was created with name: " . $user->fullName,
-								'dashboard_customers,'.$user->id,
+								'dashboard_customers,' . $user->id,
 								'dashboard'
 							); // key source	
 						} else {
@@ -245,7 +244,7 @@ public function resetPassword(ResetPasswordRequest $request)//si
 								$fcm,
 								" :تم إنشاء حساب مستخدم جديد باسم" . $user->fullName,
 								" :تم إنشاء حساب مستخدم جديد باسم" . $user->fullName,
-								'dashboard_customers,'.$user->id,
+								'dashboard_customers,' . $user->id,
 								'dashboard'
 							); // key source
 						}
@@ -301,7 +300,7 @@ public function resetPassword(ResetPasswordRequest $request)//si
 		return response()->error('Invalid verification code entered!', 400);
 	}
 
-	public function login(LoginUserRequest $request)//si
+	public function login(LoginUserRequest $request) //si
 	{
 		$banHistory = null;
 		$phone = $request->validated('phone');
